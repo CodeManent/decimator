@@ -60,8 +60,9 @@ int main(int argc, char* argv[]){
 
 
 
-
-// Performs the decimation of the loaded object
+/******************************************************************************
+ Performs the decimation of the loaded object
+******************************************************************************/
 void go(){
 	Object *newObject = new Object();
 	try{
@@ -93,6 +94,10 @@ void go(){
 	scene.objects.pop_back();
 	scene.objects.push_back(newObject);
 }
+
+/******************************************************************************
+ Saves the model to the specified file
+******************************************************************************/
 
 void save(){
 	if(configuration.outfile.size() != 0)
