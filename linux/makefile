@@ -12,6 +12,8 @@ PLATFORM=-m32
 CFLAGS+=$(PLATFORM) -DLINUX #-I$(AMDAPPSDKROOT)/include/
 CXXFLAGS+=$(PLATFORM) -DLINUX
 
+
+
 LDFLAGS=-L/usr/lib32/nvidia-304-updates -L/usr/lib32/nvidia-current -L./libs # -L$(AMDAPPSDKROOT)/lib/x86
 LIBS=-lOpenCL -lGL -lGLU -lGLEW -lglut
 
@@ -20,22 +22,22 @@ CPPSOURCES=camera.cpp configuration.cpp decimator.cpp decimatorDataValidators.cp
 OBJECTS=$(addprefix $(OUTPATH)/,$(subst .c,.o,$(subst .cpp,.o,$(CPPSOURCES))))
 
 .PHONY: all copy_kernels clean test
-all: $(OUTFILE) copy_kernels
+all: $(OUTFILE) $(OUTPATH)/$(KERNELS)
 
 $(OUTFILE): $(OBJECTS)
-	g++ $(PLATFORM) $(OBJECTS) -o $(OUTFILE) $(LDFLAGS) $(LIBS)
+	$(CXX) $(PLATFORM) $(OBJECTS) -o $(OUTFILE) $(LDFLAGS) $(LIBS)
 
 $(OUTPATH)/%.o:$(INPATH)/%.c
-	gcc $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 	
 $(OUTPATH)/%.o:$(INPATH)/%.cpp
-	g++ $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 	
 copy_kernels $(OUTPATH)/$(KERNELS):$(INPATH)/$(KERNELS)
 	cp $(INPATH)/$(KERNELS) $(OUTPATH)/$(KERNELS)
 	
 clean:
-	rm -f $(OBJECTS)
+	$(RM) $(OBJECTS)
 #	rm $(OUTPATH)/$(OUTFILE)
 
 test: $(OUTFILE) $(OUTPATH)/$(KERNELS) ../testModels/horse.ply
