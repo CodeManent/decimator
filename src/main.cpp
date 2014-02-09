@@ -11,7 +11,6 @@
 #include "configuration.hpp"
 
 int main(int argc, char*argv[]);
-void initGL();
 
  /**********************************************************
  Το σημείο εισόδου στο πρόγραμμα. 
@@ -38,9 +37,6 @@ int main(int argc, char* argv[]){
 
         scene.camera.setTarget(obj->getCenter());
 		scene.registerObject(obj);
-
-		// initialises the scene
-		scene.initialise();
 	}
 	catch(std::invalid_argument ia)
 	{
