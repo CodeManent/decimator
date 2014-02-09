@@ -1,7 +1,3 @@
-#include <cstdlib> //needed for glut at VS because of "error C2381: 'exit' : redefinition; __declspec(noreturn) differs"
-#include <GL/glew.h> // must be before glut
-#include <GL/glut.h>
-
 #include <vector>
 #include <algorithm>
 #include <stdexcept>
@@ -13,12 +9,10 @@
 
 
 /**********************************************************
- Constructor. Αρχικοποιεί τα buffer objects που θα
- χρησιμοποιηθούν.
+ Constructor.
 **********************************************************/
 Object::Object(void)
 {
-	vboID[0] = vboID[1] = 0;
 }
 
 
@@ -26,61 +20,13 @@ Object::Object(void)
 
 
 /**********************************************************
- Destructor. Διαγράφει τα buffer object αποδεσμεύοντας τη μνήμη
- που καταλαμβάνουν στην κάρτα γραφικών.
+ Destructor. 
 **********************************************************/
 Object::~Object(void)
 {
-	glDeleteBuffersARB(2, vboID);
 }
 
 
-
-
-
-/**********************************************************
- Δίνει το μοντέλο στην OpenGL βάζοντάς το σε buffer objects.
-
- Δημιουργεί δύο buffer objects (διαγράφοντας αυτά που πιθανώς
- να προϋπήρχαν) και τα γεμίζειμε τις κορυφές και τα τρίγωνα που
- υπάρχουν στο μοντέλο.
-**********************************************************/
-void Object::initialise()
-{
-	glDeleteBuffersARB(2, vboID);
-	vboID[0] = vboID[1] = 0;
-
-	// create the buffers
-	glGenBuffersARB(2, vboID);
-
-	//fill a vertices array and pass it to openGL
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vboID[0]);
-	GLfloat *verticesArray = new GLfloat[vertices.size() * 3];
-	GLsizei position = 0;
-	for(std::vector<point3f>::const_iterator vertex = vertices.begin(); vertex != vertices.end(); ++vertex)
-	{
-		verticesArray[position++] = vertex->x;
-		verticesArray[position++] = vertex->y;
-		verticesArray[position++] = vertex->z;
-	}
-	glBufferDataARB(GL_ARRAY_BUFFER_ARB, sizeof(GLfloat)*position, verticesArray, GL_STATIC_DRAW_ARB);
-	delete verticesArray;
-
-	//fill an indices array and pass it to openGL
-	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vboID[1]);
-	GLuint *indicesArray = new GLuint[indices.size()*3];
-	position = 0;
-	for(std::vector<point3ui>::const_iterator index = indices.begin(); index != indices.end(); ++index)
-	{
-		indicesArray[position++] = index->x;
-		indicesArray[position++] = index->y;
-		indicesArray[position++] = index->z;
-	}
-
-	glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, sizeof(GLuint)*position, indicesArray, GL_STATIC_DRAW_ARB);
-
-	delete indicesArray;
-}
 
 
 
@@ -135,39 +81,6 @@ point3f Object::getCenter()
 
 
 
-/**********************************************************
- Εμφανίζει το μοντέλο στην οθόνη
-
- Βάζει το μοντέλο σε buffer objects στην κάρτα γραφικών
- αν δεν υπαρχει ήδη και τα χρησιμοποιεί για να το εμφανίσει.
-**********************************************************/
-void Object::display(){
-	if(!vboID[0]){
-		// the object hasn't been initialised (registered to a VBO in the graphics card)
-		initialise();
-	}
-
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vboID[0]);
-	glVertexPointer(3, GL_FLOAT, 0, NULL);
-
-	//if indices buffer object is registered
-	if(vboID[1]){
-		// draw the triangles
-
-		glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, vboID[1]);
-		glDrawElements(GL_TRIANGLES, (GLsizei) indices.size()*3, GL_UNSIGNED_INT, NULL);
-	}
-	else{
-		//else draw a "point cloud"
-
-		glDrawArrays(GL_POINTS, 0, (GLsizei) vertices.size()*3);
-	}
-
-
-	glDisableClientState(GL_VERTEX_ARRAY);
-}
 
 
 
