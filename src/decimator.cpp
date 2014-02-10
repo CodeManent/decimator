@@ -11,11 +11,6 @@
 #include <sstream>
 
 
-#include <GL/glew.h>
-#ifdef linux
-#include <GL/glxew.h>
-#endif
-
 #include "cl.hpp"
 #include <CL/cl_gl.h>
 
@@ -175,45 +170,9 @@ void Decimator::initialise(){
 		}
 
 		pos = 0;
-		if(runOnCPU)
-		{
-			cprops[pos] = CL_CONTEXT_PLATFORM; ++pos;
-			cprops[pos] = (cl_context_properties) (platformList[i])(); ++pos;
-		}
-		else
-		{
-#ifndef cl_khr_gl_sharing
-			//assert(0);
-			//not specified, implementation defined
-#else
-#if defined (__APPLE__) || defined(MACOSX)
-			CGLContextObj kCGLContext = CGLGetCurrentContext();              
-			CGLShareGroupObj kCGLShareGroup = CGLGetShareGroup(kCGLContext);
+		cprops[pos] = CL_CONTEXT_PLATFORM; ++pos;
+		cprops[pos] = (cl_context_properties) (platformList[i])(); ++pos;
 
-			cprops[pos] = CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE;		++pos;
-			cprops[pos] = (cl_context_properties)kCGLShareGroup;			++pos;
-#else
-#ifdef LINUX
-			//untested yes
-			cprops[pos] = CL_GL_CONTEXT_KHR;								++pos;
-			cprops[pos] = (cl_context_properties)glXGetCurrentContext();	++pos;
-			cprops[pos] = CL_GLX_DISPLAY_KHR;								++pos;
-			cprops[pos] = (cl_context_properties)glXGetCurrentDisplay();	++pos;
-			cprops[pos] = CL_CONTEXT_PLATFORM;								++pos;
-			cprops[pos] = (cl_context_properties)(platformList[i])();		++pos;
-#else
-			//windows
-			cprops[pos] = CL_GL_CONTEXT_KHR;								++pos;
-			cprops[pos] = (cl_context_properties)wglGetCurrentContext();	++pos;
-			cprops[pos] = CL_WGL_HDC_KHR;									++pos;
-			cprops[pos] = (cl_context_properties)wglGetCurrentDC();			++pos;
-			cprops[pos] = CL_CONTEXT_PLATFORM;								++pos;
-			cprops[pos] = (cl_context_properties)(platformList[i])();		++pos;
-
-#endif // LINUX
-#endif // __APPLE__
-#endif
-		}
 
 		cprops[pos] = 0; ++pos;
 
