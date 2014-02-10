@@ -14,14 +14,14 @@ CXXFLAGS+=$(PLATFORM) -DLINUX
 
 
 
-LDFLAGS=-L/usr/lib32/nvidia-304-updates -L/usr/lib32/nvidia-current -L./libs # -L$(AMDAPPSDKROOT)/lib/x86
-LIBS=-lOpenCL -lGL -lGLU 
+LDFLAGS=-L/usr/lib32/nvidia-304-updates # -L$(AMDAPPSDKROOT)/lib/x86
+LIBS=-lOpenCL
 
 CPPSOURCES=camera.cpp configuration.cpp decimator.cpp decimatorDataValidators.cpp decimatorIndependentPoints.cpp decimatorPrepareData.cpp decimatorSort.cpp main.cpp object.cpp plyobject.cpp rply.c scene.cpp
 #HEDAERS=camera.hpp configuration.hpp decimator.hpp glut_callbacks.hpp plyobject.hpp point3.hpp rply.h cl.hpp object.hpp 
 OBJECTS=$(addprefix $(OUTPATH)/,$(subst .c,.o,$(subst .cpp,.o,$(CPPSOURCES))))
 
-.PHONY: all copy_kernels clean test
+.PHONY: all copy_kernels clean test run
 all: $(OUTFILE) $(OUTPATH)/$(KERNELS)
 
 $(OUTFILE): $(OBJECTS)
@@ -38,11 +38,12 @@ copy_kernels $(OUTPATH)/$(KERNELS):$(INPATH)/$(KERNELS)
 	
 clean:
 	$(RM) $(OBJECTS)
-#	rm $(OUTPATH)/$(OUTFILE)
+#	$(RM) $(OUTFILE)
+#	$(RM) $(OUTPATH)/$(KERNELS)
 
 test: $(OUTFILE) $(OUTPATH)/$(KERNELS) ../testModels/horse.ply
-	LD_LIBRARY_PATH=./libs/:/usr/lib32/nvidia-304-updates:$LD_LIBRARY_PATH $(OUTFILE) ../testModels/horse.ply --target 1000 --gpu --kernels $(OUTPATH)/$(KERNELS) --cw --antialiasing
+	LD_LIBRARY_PATH=/usr/lib32/nvidia-304-updates:$$LD_LIBRARY_PATH $(OUTFILE) ../testModels/horse.ply --target 1000 --gpu --kernels $(OUTPATH)/$(KERNELS) --cw --antialiasing
 
 run: $(OUTFILE) $(OUTPATH)/$(KERNELS)
-	LD_LIBRARY_PATH=./libs/:/usr/lib32/nvidia-304-updates:$LD_LIBRARY_PATH $(OUTFILE) `zenity --file-selection --file-filter '*.ply'` --gpu --kernels $(OUTPATH)/$(KERNELS) --cw --antialiasing
+	LD_LIBRARY_PATH=/usr/lib32/nvidia-304-updates:$$LD_LIBRARY_PATH $(OUTFILE) `zenity --file-selection --file-filter '*.ply'` --gpu --kernels $(OUTPATH)/$(KERNELS) --cw --antialiasing
 

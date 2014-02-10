@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <GL/glut.h>
 #include <sstream>
 
 #include "camera.hpp"
@@ -131,17 +130,7 @@ void Camera::up(const float d){
 	OpenGL.
 **********************************************************/
 void Camera::update() const{
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	gluPerspective(50.0, (GLdouble)scene.windowWidth/scene.windowHeight, 0.01, 10000);
-	gluLookAt(
-		position.x, position.y, position.z, //camera position
-		lookAt.x, lookAt.y, lookAt.z, //look at
-		//0.0f, 1.0f, 0.0f
-		upVector.x, upVector.y, upVector.z
-		);
-
-	glMatrixMode(GL_MODELVIEW);
+	// code removed, to clear OpenGL dependency
 }
 
 
