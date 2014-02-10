@@ -41,6 +41,7 @@ int main(int argc, char* argv[]){
 		scene.registerObject(obj);
 
 		// decimate the object
+		std::cout << configuration.infile << ": ";
 		go();
 
 		// and save it if appropriate argument is specified

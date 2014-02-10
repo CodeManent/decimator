@@ -16,7 +16,7 @@
 
 
 #include "decimator.hpp"
-
+#include "timer.hpp"
 
 Decimator decimator;
 
@@ -231,7 +231,7 @@ void Decimator::initialise(){
 		std::cerr << buildLog << std::endl;
 	}
 	clAssert(err, "Decimator::initialise: Build failed");
-	std::clog << "Decimator::initialise: Build success" << std::endl;
+	// std::clog << "Decimator::initialise: Build success" << std::endl;
 
 	if(queue != NULL){
 		delete queue;
@@ -283,12 +283,12 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
         throw(std::invalid_argument("Decimator::decimat: Source object has no triangles"));
     }
 
-    std::clog << "Decimation started" << std::endl;
+    //std::clog << "Decimation started" << std::endl;
 	//std::cout << "vertices(" << obj.vertices.size() << ") - target(" << targetVertices << ") = " << verticesToTarget << std::endl;
 
-#ifdef WINDOWS_TIMING
-	DWORD startTime = GetTickCount();
-#endif
+	int iteration = 0;
+	Timer t;
+	t.start();
 
 	try{
 		//std::cout << "initailise\n";
@@ -329,7 +329,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 		waitVector.clear();
 		waitVector.push_back(computeVTIEvent);
 
-		int iteration = 1;
+		
 		do
 		{
 /*
@@ -406,7 +406,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 		waitVector.clear();
 		waitVector.push_back(collectResultsEvent);
 
-		std::clog << "iterations: " << iteration << std::endl;
+		// std::clog << "iterations: " << iteration << std::endl;
 	}
 	catch(std::exception &e)
 	{
@@ -431,11 +431,13 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
         std::cerr << "Cleanup error: " << e.what() << std::endl;
 		throw;
 	}
+	t.stop();
 
-#ifdef WINDOWS_TIMING
-	DWORD endTime = GetTickCount();
-	std::clog << "Decimation Finished. " << endTime - startTime << " milliseconds" << std::endl;
-#endif
+	std::cout << "target: " << targetVertices << '\t'
+	          << "result: " << newObject.vertices.size() << '\t'
+	          << "iterations: " << iteration << '\t'
+	          << "duration: " << t.getDuration() << "ms"
+			  << std::endl;
 }
 
  /**********************************************************
@@ -572,7 +574,7 @@ cl_int Decimator::collectResults(Object &ret, const Object &obj, const std::vect
 	err = readIndicesEvent.wait();
 	clAssert(err, "Decimator::collectCPUResults: Waitting to read vertices from OpenCL");
 
-    std::clog << "Reconstructing Object" << std::endl;
+    //std::clog << "Reconstructing Object" << std::endl;
 	unsigned int discardedVertices = 0;
 	for(size_t i = 0; i < vertices; ++i){
 		if(newVertices[3*i] == CL_MAXFLOAT){
@@ -604,8 +606,8 @@ cl_int Decimator::collectResults(Object &ret, const Object &obj, const std::vect
 		ret.addTriangle(newTriangle);
 	}
 
-    std::clog << "discardedVertices: " << discardedVertices << std::endl;
-    std::clog << "skippedTriangles: " << discardedTriangles << std::endl;
+    // std::clog << "discardedVertices: " << discardedVertices << std::endl;
+    // std::clog << "skippedTriangles: " << discardedTriangles << std::endl;
 
 	delete[] newVertices;
 	delete[] newIndices;
