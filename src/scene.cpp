@@ -37,27 +37,6 @@ void Scene::registerObject(Object *obj){
 	objects.push_back(obj);
 }
 
-void Scene::display(){
-	for(std::vector<Object *>::iterator obj = objects.begin(); obj != objects.end(); ++obj){
-		(*obj)->display();
-	}
-}
-
-
-
-
-
-/**********************************************************
- Κλήση της μεθόδου αρχικοποίησης όλων των μοντέλων. 'Ετσι
- τα μοντέλα περνάνε σε buffer objects σητν κάρτα γραφικών.
-**********************************************************/
-void Scene::initialise(){
-	for(std::vector<Object *>::iterator obj = objects.begin(); obj != objects.end(); ++obj){
-		(*obj)->initialise();
-	}
-}
-
-
 
 
 

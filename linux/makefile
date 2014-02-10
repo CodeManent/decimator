@@ -15,9 +15,9 @@ CXXFLAGS+=$(PLATFORM) -DLINUX
 
 
 LDFLAGS=-L/usr/lib32/nvidia-304-updates -L/usr/lib32/nvidia-current -L./libs # -L$(AMDAPPSDKROOT)/lib/x86
-LIBS=-lOpenCL -lGL -lGLU -lGLEW -lglut
+LIBS=-lOpenCL -lGL -lGLU 
 
-CPPSOURCES=camera.cpp configuration.cpp decimator.cpp decimatorDataValidators.cpp decimatorIndependentPoints.cpp decimatorPrepareData.cpp decimatorSort.cpp glut_callbacks.cpp main.cpp object.cpp plyobject.cpp rply.c scene.cpp
+CPPSOURCES=camera.cpp configuration.cpp decimator.cpp decimatorDataValidators.cpp decimatorIndependentPoints.cpp decimatorPrepareData.cpp decimatorSort.cpp main.cpp object.cpp plyobject.cpp rply.c scene.cpp
 #HEDAERS=camera.hpp configuration.hpp decimator.hpp glut_callbacks.hpp plyobject.hpp point3.hpp rply.h cl.hpp object.hpp 
 OBJECTS=$(addprefix $(OUTPATH)/,$(subst .c,.o,$(subst .cpp,.o,$(CPPSOURCES))))
 

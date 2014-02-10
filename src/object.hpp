@@ -22,10 +22,8 @@ public:
 	std::vector<point3f> vertices;	// ΟΙ κορυφές του μοντέλου
 	std::vector<point3ui> indices;	// Τα τρίγωνα του μοντέλου
 
-	virtual void initialise();		// "Αρχικποίηση" του μοντέλου. Περνά σε buffer object στην κάρτα γραφίκών
 	virtual void bring_to_center();	// Μεταφορά του μοντέλου στην αρχή των αξόνων
 	virtual point3f getCenter();	// Παίρνουμε το "κέντρο" του μοντέλου
-	virtual void display();			// Εμφανίζειτο μοντέλω στην οθόνη
 
 	virtual void addVertex(const point3f &vertex); // Προσθήκη κορυφής
 	virtual void addTriangle(const point3ui &triangle); // Προσθήκη τριγώνου
@@ -33,7 +31,6 @@ public:
 	Object(void);
 	virtual ~Object(void);
 protected:
-	unsigned int vboID[2];
 
 	friend class Decimator;
 };

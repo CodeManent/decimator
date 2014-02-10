@@ -21,8 +21,6 @@ public:
 
 	void registerObject(Object * obj); // Προσθήκη ενός μοντέλου
 
-	void display();		// εμφάνιση σκηνής στο παράθυρο
-	void initialise();	// Αρχικοποίηση σκηνής και των μοντέλων της
 	void printInfo();	// Εμφάνιση πληροφοριών στην κοονσόλα
 
 	Scene();

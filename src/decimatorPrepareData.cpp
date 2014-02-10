@@ -30,45 +30,27 @@ cl_int Decimator::initialiseBuffers(const Object &obj, const std::vector<cl::Eve
 
 	internalWaitVector.clear();
 
-	if(!runOnCPU){
-		//running on GPU
-		// get the data from the VBOs
-
-		glVertices = new cl::BufferGL(*context, CL_MEM_READ_WRITE, obj.vboID[0], &err);
-		glIndices = new cl::BufferGL(*context, CL_MEM_READ_WRITE, obj.vboID[1], &err);
-
-		glBuffers.push_back(*glVertices);
-		glBuffers.push_back(*glIndices);
-
-	/**/err = queue->enqueueAcquireGLObjects(&glBuffers, waitVector, &acquireObjectsEvent);
-		clAssert(err, "Decimator::initialiseBuffers: acquiring GL objects");
-		internalWaitVector.push_back(acquireObjectsEvent);
+	// fill the buffers with data from the object
+	iArray = new cl_uint[indices*3];
+	for(size_t i = 0; i< indices; ++i){
+		iArray[3*i] = obj.indices[i].x;
+		iArray[3*i+1] = obj.indices[i].y;
+		iArray[3*i+2] = obj.indices[i].z;
 	}
-	else
-	{
-		//run on CPU
-		// fill the buffers with data from the object
 
-		iArray = new cl_uint[indices*3];
-		for(size_t i = 0; i< indices; ++i){
-			iArray[3*i] = obj.indices[i].x;
-			iArray[3*i+1] = obj.indices[i].y;
-			iArray[3*i+2] = obj.indices[i].z;
-		}
-
-		vArray = new cl_float[vertices*3];
-		for(size_t i = 0; i < vertices; ++i){
-			vArray[3*i] = obj.vertices[i].x;
-			vArray[3*i+1] = obj.vertices[i].y;
-			vArray[3*i+2] = obj.vertices[i].z;
-		}
-
-		glIndices = new cl::Buffer(*context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, sizeof(cl_uint)* 3 *indices, iArray, &err);
-		clAssert(err, "Decimator::initialiseBuffers: Creating indices buffer");
-
-		glVertices = new cl::Buffer(*context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, sizeof(cl_float)* 3 *vertices, vArray, &err);
-		clAssert(err, "Decimator::initialiseBuffers: Creating vertices buffer");
+	vArray = new cl_float[vertices*3];
+	for(size_t i = 0; i < vertices; ++i){
+		vArray[3*i] = obj.vertices[i].x;
+		vArray[3*i+1] = obj.vertices[i].y;
+		vArray[3*i+2] = obj.vertices[i].z;
 	}
+
+	glIndices = new cl::Buffer(*context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, sizeof(cl_uint)* 3 *indices, iArray, &err);
+	clAssert(err, "Decimator::initialiseBuffers: Creating indices buffer");
+
+	glVertices = new cl::Buffer(*context, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, sizeof(cl_float)* 3 *vertices, vArray, &err);
+	clAssert(err, "Decimator::initialiseBuffers: Creating vertices buffer");
+
 
 	triangleQuadrics= new cl::Buffer(*context, CL_MEM_READ_WRITE, sizeof(cl_double)*16*indices, 0, &err);
 	clAssert(err, "Decimator::initialiseBuffers: Creating triangle quadrics buffer");
