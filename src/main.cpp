@@ -11,6 +11,8 @@
 #include "configuration.hpp"
 
 int main(int argc, char*argv[]);
+void go();
+void save();
 
  /**********************************************************
  Το σημείο εισόδου στο πρόγραμμα. 
@@ -32,11 +34,17 @@ int main(int argc, char* argv[]){
 
 		decimator.initialise();
 
-		std::clog << "Trying to load \"" <<configuration.infile << "\"" << std::endl;
+		// std::clog << "Trying to load \"" <<configuration.infile << "\"" << std::endl;
 		PLYObject *obj = new PLYObject (configuration.infile);
 
         scene.camera.setTarget(obj->getCenter());
 		scene.registerObject(obj);
+
+		// decimate the object
+		go();
+
+		// and save it if appropriate argument is specified
+		save();
 	}
 	catch(std::invalid_argument ia)
 	{
@@ -106,10 +114,6 @@ void save(){
 		{
 			std::cout << e.what() << std::endl;
 		}
-	}
-	else
-	{
-		std::cout << "Outfile not specified" << std::endl;
 	}
 }
 
