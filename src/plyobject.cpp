@@ -137,7 +137,7 @@ void PLYObject::loadFromFile(string path){
 	long nvertices, ntriangles;
 	p_ply ply;
 
-    if(!(ply = ply_open(path.c_str(), NULL)))
+    if(!(ply = ply_open(path.c_str(), NULL, 0, NULL)))
     {
 		throw(runtime_error("PLYObject::loadFromFile: Couldn't open the file"));
     }
