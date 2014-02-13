@@ -8,7 +8,7 @@ SRC=$(INPATH)/*.c $(INPATH)/*.cpp
 HRD=$(INPATH)/*.h $(INPATH)/*.hpp
 KERNELS=kernels.cl
 
-PLATFORM=-m32
+#PLATFORM=-m32
 CFLAGS+=$(PLATFORM) -DLINUX #-I$(AMDAPPSDKROOT)/include/
 CXXFLAGS+=$(PLATFORM) -Wall -DLINUX #-Wextra -pedantic
 
