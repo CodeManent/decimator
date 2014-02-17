@@ -438,6 +438,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 	          << "iterations: " << iteration << '\t'
 	          << "duration: " << t.getDuration() << "ms"
 			  << std::endl;
+	queue->finish();
 }
 
  /**********************************************************

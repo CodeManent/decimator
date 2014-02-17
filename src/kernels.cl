@@ -5,7 +5,7 @@
 //#define LOG_COMPUTE_ERROR 1
 //#define LOG_SORTING 1
 //#define LOG_LOCAL_SORT 1
-//#define LOG_INDEPENDENT_POINTS 1
+#define LOG_INDEPENDENT_POINTS 1
 //#define LOG_PACK_LIST_ELEMENTS 1
 //#define LOG_PLACEMENT 1
 //#define LOG_DECIMATE 1
@@ -1934,7 +1934,7 @@ float4 findOptimalPlacement(
 	if(DBL_EPSILON < det)
 //	if(0 != det)
 	{
-        log_message("-");
+        //log_message("-");
 		const double det2 = vdet3x3(Q, 0, 1, 2, 4, 5, 6, 8, 9, a);
 		const double16 tmp = invert3x3(Q, det2);
 		const double4 v = multiplyMatrixVector(tmp, Q.s37bf);
@@ -1944,7 +1944,7 @@ float4 findOptimalPlacement(
 	else
 
 	{
-        log_message("|");
+        //log_message("|");
 		//special case
 		finalPos.x = vertices[firstVertex*3    ] + vertices[secondVertex*3    ];
 		finalPos.y = vertices[firstVertex*3 + 1] + vertices[secondVertex*3 + 1];
