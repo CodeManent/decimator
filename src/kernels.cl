@@ -11,7 +11,7 @@
 //#define LOG_DECIMATE 1
 //__FILE__
 
-#if  defined(LOGGING) // defined(cl_amd_printf)
+#if  defined(LOGGING)
 	#pragma OPENCL EXTENSION cl_amd_printf : enable
 	#define log_message printf
 #else
@@ -854,6 +854,7 @@ __kernel void computeTriangleQuadrics(
 						unsigned int indices)
 {
 	size_t tid = get_global_id(0);
+	printf(".");
 
 	if(!(tid < indices)){
 		return ;

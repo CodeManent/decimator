@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 #include "decimator.hpp"
 
@@ -216,6 +217,13 @@ cl_int Decimator::computeVertexToIndices(const Object &obj, const std::vector<cl
  **********************************************************/
 cl_int Decimator::computeTriangleQuadrics(const Object &obj, const std::vector<cl::Event> *const waitVector,cl::Event *const returnedEvent)
 {
+	std::cout << "Waiting for prev events to finish" << std::endl;
+	for(size_t i = 0; i < waitVector->size(); ++i){
+		std::cout << "Waiting for event " << i << std::endl;
+		waitVector->at(i).wait();
+	}
+
+
 	cl_int err = CL_SUCCESS;
 	cl_uint indices = (cl_int) obj.indices.size();
 	cl::Event computeQuadricsEvent;
@@ -233,6 +241,8 @@ cl_int Decimator::computeTriangleQuadrics(const Object &obj, const std::vector<c
 	clAssert(err, "Decimator::computeTriangleQuadrics: Getting workgroup info");
 	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
 	cl_int workSize = indices + (workgroupSize - indices % workgroupSize)%workgroupSize;
+	
+	std::cerr << "TriangleQuadrics: before enqueue" << std::endl;
 
 /**/err = queue->enqueueNDRangeKernel(
 		computeQuadrics,
@@ -243,6 +253,9 @@ cl_int Decimator::computeTriangleQuadrics(const Object &obj, const std::vector<c
 		&computeQuadricsEvent
 		);
 	clAssert(err, "Decimator::computeTriangleQuadrics: Adding kernel to queue");
+	std::cout << "TriangleQuadrics: after enqueue, err = " << err << std::endl;
+	computeQuadricsEvent.wait();
+	std::cout << "TriangleQuadrics: after wait()" << std::endl;
 
 	if(returnedEvent){
 		*returnedEvent = computeQuadricsEvent;
