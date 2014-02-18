@@ -221,6 +221,7 @@ void Decimator::initialise(){
 	{
 		err = program->build(devices);
 	}
+
 	if(err != CL_SUCCESS){
 		cl_int build_log_err = CL_SUCCESS;
 
@@ -291,27 +292,27 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 	t.start();
 
 	try{
-		//std::cout << "initailise\n";
+		std::cout << "initailise\n";
 		waitVector.clear();
 		initialiseBuffers(obj, 0,  &initialiseArraysEvent);
 
 		debugWait(initialiseArraysEvent);
 
-		//std::cout << "computeVertexToIndices\n";
+		std::cout << "computeVertexToIndices\n";
 		waitVector.clear();
 		waitVector.push_back(initialiseArraysEvent);
 		computeVertexToIndices(obj, &waitVector, &computeVTIEvent);
 
 		debugWait(computeVTIEvent);
 
-		//std::cout << "computeTriangleQuadrics\n";
+		std::cout << "computeTriangleQuadrics\n";
 		waitVector.clear();
 		waitVector.push_back(initialiseArraysEvent);
 		computeTriangleQuadrics(obj, &waitVector, &computeQuadricsEvent);
 
 		debugWait(computeQuadricsEvent);
 
-		//std::cout << "computeFinalQuadrics\n";
+		std::cout << "computeFinalQuadrics\n";
 		waitVector.clear();
 		waitVector.push_back(computeQuadricsEvent);
 		waitVector.push_back(computeVTIEvent);
@@ -319,7 +320,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 
 		debugWait(computeFinalQuadricsEvent);
 
-		//std::cout << "computeDecimationError\n";
+		std::cout << "computeDecimationError\n";
 		waitVector.clear();
 		waitVector.push_back(computeFinalQuadricsEvent);
 		computeDecimationError(obj, &waitVector, &computeDecimationErrorEvent);
@@ -329,10 +330,10 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 		waitVector.clear();
 		waitVector.push_back(computeVTIEvent);
 
-		
+		std::cerr << "Decimator: entering loop" << std::endl;
 		do
 		{
-/*
+//*
 			//debug logging
 			if(iteration % 10 == 0)
                 std::clog << "iteration : " << iteration << std::endl;

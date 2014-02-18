@@ -1,6 +1,6 @@
 //logging constants for debugging
 
-//#define LOGGING 1
+#define LOGGING 1
 //#define LOG_COMPUTE_QUADRICS 1
 //#define LOG_COMPUTE_ERROR 1
 //#define LOG_SORTING 1
@@ -11,7 +11,7 @@
 //#define LOG_DECIMATE 1
 //__FILE__
 
-#if defined(cl_amd_printf) && defined(LOGGING)
+#if  defined(LOGGING) // defined(cl_amd_printf)
 	#pragma OPENCL EXTENSION cl_amd_printf : enable
 	#define log_message printf
 #else
@@ -166,7 +166,8 @@ __kernel void computeFinalQuadrics(
 								   __global double16 *const quadrics, 
 								   __global struct arrayInfo const *const vertexToIndicesPointers,
 								   __global unsigned int const *const vertexToIndicesData,
-								   const unsigned int vertices
+								   const unsigned int vertices,
+								   const unsigned int triangles
 								   );
 
 /*Helper functions*/
@@ -846,7 +847,11 @@ __kernel void sweepIndependentPoints(
 /***********************************************************
 | The kernel that computes the quadrics for every triangle
 */
-__kernel void computeTriangleQuadrics(__global unsigned int const *const triangles, __global float const * const points, __global double16 * const triangleQuadrics, unsigned int indices)
+__kernel void computeTriangleQuadrics(
+						__global unsigned int const *const triangles,
+						__global float const * const points,
+						__global double16 * const triangleQuadrics,
+						unsigned int indices)
 {
 	size_t tid = get_global_id(0);
 
@@ -894,7 +899,8 @@ __kernel void computeFinalQuadrics(
 					__global double16 *const quadrics, 
 					__global struct arrayInfo const *const vertexToIndicesPointers, 
 					__global unsigned int const *const vertexToIndicesData,
-					const unsigned int vertices)
+					const unsigned int vertices,
+					const unsigned int triangles)
 {
 	size_t tid = get_global_id(0);
 
@@ -909,6 +915,10 @@ __kernel void computeFinalQuadrics(
 	for(i=0; i< vip.size; ++i)
 	{
 		size_t currentTriangle = vertexToIndicesData[vip.position + i];
+		if(currentTriangle >= triangles){
+			log_message("bad triangle number");
+		}
+
 		/*
 		double16 Q = quadrics[tid];
 		Q += triangleQuadrics[currentTriangle];
@@ -2440,7 +2450,7 @@ __kernel void decimateOnPoint(
 
 	const uint2 commonTriangles = getCommonTriangles(vertexToIndicesPointers, vertexToIndicesData, vertexId, bestNeighbor);
 
-	if((commonTriangles.s0 == UINT_MAX))// || (commonTriangles.s1 == UINT_MAX) || (commonTriangles.s0 == commonTriangles.s1))
+	if(commonTriangles.s0 == UINT_MAX)// || (commonTriangles.s1 == UINT_MAX) || (commonTriangles.s0 == commonTriangles.s1))
 	{
 #if defined(LOGGING) && defined(LOG_DECIMATE)
 		log_message("decimateOnPoints failed (tid = %d)\n", tid);

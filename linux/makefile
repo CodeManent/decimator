@@ -9,8 +9,8 @@ HRD=$(INPATH)/*.h $(INPATH)/*.hpp
 KERNELS=kernels.cl
 
 #PLATFORM=-m32
-CFLAGS+=$(PLATFORM) -DLINUX #-I$(AMDAPPSDKROOT)/include/
-CXXFLAGS+=$(PLATFORM) -Wall -DLINUX #-Wextra -pedantic
+CFLAGS+=$(PLATFORM) -g -DLINUX #-I$(AMDAPPSDKROOT)/include/
+CXXFLAGS+=$(PLATFORM) -g -Wall -DLINUX #-Wextra -pedantic
 
 
 
