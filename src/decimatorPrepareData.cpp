@@ -239,11 +239,17 @@ cl_int Decimator::computeTriangleQuadrics(const Object &obj, const std::vector<c
 
 	cl_int workgroupSize = (cl_int) computeQuadrics.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
 	clAssert(err, "Decimator::computeTriangleQuadrics: Getting workgroup info");
+	//patch for intel opencl implementation
+	workgroupSize = device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>(&err);
+	clAssert(err, "Decimator::computeTriangleQuadrics: Getting workgroup info");
 	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
+	
+	// intel's OpenCL implementation (for the CPU) segfaults with the current (big) workgroup size
+	workgroupSize = 64;
 	cl_int workSize = indices + (workgroupSize - indices % workgroupSize)%workgroupSize;
 	
 	std::cerr << "TriangleQuadrics: before enqueue" << std::endl;
-
+	std::cout << "TriangleQuadrics: workgroupSize: "<< workgroupSize << "\tworkSize: " << workSize << "\tindices: << " << indices << std::endl;
 /**/err = queue->enqueueNDRangeKernel(
 		computeQuadrics,
 		cl::NullRange,
@@ -275,7 +281,6 @@ cl_int Decimator::computeFinalQuadrics(const Object &obj, const std::vector<cl::
 {
 	cl_int err = CL_SUCCESS;
 	cl_uint vertices = (cl_int) obj.vertices.size();
-	cl_uint triangles = static_cast<cl_int>(obj.vertices.size());
 	cl::Event computeQuadricsEvent;
 
 /**/cl::Kernel finalQuadrics(*program, "computeFinalQuadrics", &err);
@@ -286,13 +291,16 @@ cl_int Decimator::computeFinalQuadrics(const Object &obj, const std::vector<cl::
 	err |= finalQuadrics.setArg(2, *vertexToIndicesPointers);
 	err |= finalQuadrics.setArg(3, *vertexToIndicesData);
 	err |= finalQuadrics.setArg(4, vertices);
-	err |= finalQuadrics.setArg(5, triangles);
 	clAssert(err, "Decimator::computeFinalQuadrics: Adding kernel parameters");
 
 	cl_int workgroupSize = (cl_int) finalQuadrics.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
+	//patch for intel opencl implementation
+	workgroupSize = device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>(&err);
 	clAssert(err, "Decimator::computeFinalQuadrics: Getting workgroup info");
 	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
 	cl_int workSize = vertices + (workgroupSize - vertices % workgroupSize)%workgroupSize;
+
+	std::cout << "computeFinalQuadrics: wgs:" << workgroupSize << std::endl;
 
 /**/err = queue->enqueueNDRangeKernel(
 		finalQuadrics,

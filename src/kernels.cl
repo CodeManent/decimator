@@ -12,7 +12,9 @@
 //__FILE__
 
 #if  defined(LOGGING)
-	#pragma OPENCL EXTENSION cl_amd_printf : enable
+	#if defined(cl_amd_printf)
+		#pragma OPENCL EXTENSION cl_amd_printf : enable
+	#endif
 	#define log_message printf
 #else
 	//ignore printf commands
@@ -166,8 +168,7 @@ __kernel void computeFinalQuadrics(
 								   __global double16 *const quadrics, 
 								   __global struct arrayInfo const *const vertexToIndicesPointers,
 								   __global unsigned int const *const vertexToIndicesData,
-								   const unsigned int vertices,
-								   const unsigned int triangles
+								   const unsigned int vertices
 								   );
 
 /*Helper functions*/
@@ -854,9 +855,9 @@ __kernel void computeTriangleQuadrics(
 						unsigned int indices)
 {
 	size_t tid = get_global_id(0);
-	printf(".");
 
 	if(!(tid < indices)){
+		printf("+");
 		return ;
 	}
 
@@ -900,8 +901,7 @@ __kernel void computeFinalQuadrics(
 					__global double16 *const quadrics, 
 					__global struct arrayInfo const *const vertexToIndicesPointers, 
 					__global unsigned int const *const vertexToIndicesData,
-					const unsigned int vertices,
-					const unsigned int triangles)
+					const unsigned int vertices)
 {
 	size_t tid = get_global_id(0);
 
@@ -916,10 +916,7 @@ __kernel void computeFinalQuadrics(
 	for(i=0; i< vip.size; ++i)
 	{
 		size_t currentTriangle = vertexToIndicesData[vip.position + i];
-		if(currentTriangle >= triangles){
-			log_message("bad triangle number");
-		}
-
+		
 		/*
 		double16 Q = quadrics[tid];
 		Q += triangleQuadrics[currentTriangle];

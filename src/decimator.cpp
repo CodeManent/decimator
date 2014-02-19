@@ -215,7 +215,7 @@ void Decimator::initialise(){
 	if(runOnCPU)
 	{
 		//build with debug information
-		err = program->build(devices, "-g");
+		err = program->build(devices, "-g -s ./kernels.cl");
 	}
 	else
 	{
