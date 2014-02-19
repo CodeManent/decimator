@@ -409,7 +409,7 @@ __kernel void findIndependentPoints(
 				if((used[v0] == 1) || (used[v1] == 1) || (used[v2] == 1))
 				{
 					//vertices already used
-					//printf("fip: already used ");
+					//log_message("fip: already used ");
 					succeded = false;
 					break;
 				}
@@ -857,7 +857,7 @@ __kernel void computeTriangleQuadrics(
 	size_t tid = get_global_id(0);
 
 	if(!(tid < indices)){
-		printf("+");
+		log_message("+");
 		return ;
 	}
 
@@ -2011,7 +2011,7 @@ bool foldOverOccurs(
 
 			if(dot(normal1, normal2) <= 0)
 			{
-				//printf("dot = %f\n",dot(normal1, normal2));
+				//log_message("dot = %f\n",dot(normal1, normal2));
 				return true;
 			}
 		}
