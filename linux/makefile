@@ -21,7 +21,7 @@ CPPSOURCES=camera.cpp configuration.cpp decimator.cpp decimatorDataValidators.cp
 #HEDAERS=camera.hpp configuration.hpp decimator.hpp glut_callbacks.hpp plyobject.hpp point3.hpp rply.h cl.hpp object.hpp 
 OBJECTS=$(addprefix $(OUTPATH)/,$(subst .c,.o,$(subst .cpp,.o,$(CPPSOURCES))))
 
-.PHONY: all copy_kernels clean test run
+.PHONY: all copy_kernels clean test test_cpu run
 all: $(OUTFILE) $(OUTPATH)/$(KERNELS)
 
 $(OUTFILE): $(OBJECTS)
@@ -44,6 +44,9 @@ clean:
 #LD_LIBRARY_PATH=/usr/lib32/nvidia-304-updates:$$LD_LIBRARY_PATH
 test: $(OUTFILE) $(OUTPATH)/$(KERNELS) ../testModels/horse.ply
 	$(OUTFILE) ../testModels/horse.ply --target 1000 --gpu --kernels $(OUTPATH)/$(KERNELS) --cw --antialiasing
+
+test_cpu: $(OUTFILE) $(OUTPATH)/$(KERNELS) ../testModels/horse.ply
+	$(OUTFILE) ../testModels/horse.ply --cpu
 
 #LD_LIBRARY_PATH=/usr/lib32/nvidia-304-updates:$$LD_LIBRARY_PATH
 run: $(OUTFILE) $(OUTPATH)/$(KERNELS)
