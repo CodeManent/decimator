@@ -92,11 +92,8 @@ cl_int Decimator::initialiseBuffers(const Object &obj, const std::vector<cl::Eve
 	clAssert(err, "Decimator::initialiseBuffers: Adding parameters to kernel");
 
 
-	cl_int workgroupSize = (cl_int) initialiseArrays.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
-	clAssert(err, "Decimator::initialiseBuffers: Getting workgroup info");
-	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
-	cl_int workSize = vertices + (workgroupSize - vertices % workgroupSize)%workgroupSize;
-	
+	cl_int workgroupSize = getWorkgroupSize(initialiseArrays, "initialiseBuffers");
+	cl_int workSize = getWorkSize(vertices, workgroupSize);
 
 	err = queue->enqueueNDRangeKernel(
 		initialiseArrays,
@@ -237,16 +234,8 @@ cl_int Decimator::computeTriangleQuadrics(const Object &obj, const std::vector<c
 	err |= computeQuadrics.setArg(3, indices);
 	clAssert(err, "Decimator::computeTriangleQuadrics: Adding kernel parameters");
 
-	cl_int workgroupSize = (cl_int) computeQuadrics.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
-	clAssert(err, "Decimator::computeTriangleQuadrics: Getting workgroup info");
-	//patch for intel opencl implementation
-	workgroupSize = device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>(&err);
-	clAssert(err, "Decimator::computeTriangleQuadrics: Getting workgroup info");
-	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
-	
-	// intel's OpenCL implementation (for the CPU) segfaults with the current (big) workgroup size
-	workgroupSize = 64;
-	cl_int workSize = indices + (workgroupSize - indices % workgroupSize)%workgroupSize;
+	cl_int workgroupSize = getWorkgroupSize(computeQuadrics, "computeTriangleQuadrics");
+	cl_int workSize = getWorkSize(indices, workgroupSize);
 	
 	std::cerr << "TriangleQuadrics: before enqueue" << std::endl;
 	std::cout << "TriangleQuadrics: workgroupSize: "<< workgroupSize << "\tworkSize: " << workSize << "\tindices: << " << indices << std::endl;
@@ -293,12 +282,8 @@ cl_int Decimator::computeFinalQuadrics(const Object &obj, const std::vector<cl::
 	err |= finalQuadrics.setArg(4, vertices);
 	clAssert(err, "Decimator::computeFinalQuadrics: Adding kernel parameters");
 
-	cl_int workgroupSize = (cl_int) finalQuadrics.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
-	//patch for intel opencl implementation
-	workgroupSize = device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>(&err);
-	clAssert(err, "Decimator::computeFinalQuadrics: Getting workgroup info");
-	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
-	cl_int workSize = vertices + (workgroupSize - vertices % workgroupSize)%workgroupSize;
+	cl_int workgroupSize = getWorkgroupSize(finalQuadrics, "computeFinalQuadrics");
+	cl_int workSize = getWorkSize(vertices, workgroupSize);
 
 	std::cout << "computeFinalQuadrics: wgs:" << workgroupSize << std::endl;
 
@@ -342,10 +327,8 @@ cl_int Decimator::computeDecimationError(const Object &obj, const std::vector<cl
 	err |= computeDecimationError.setArg(3, vertices);
 	clAssert(err, "Decimator::computeDecimationError: Adding kernel parameters");
 
-	cl_int workgroupSize = (cl_int) computeDecimationError.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
-	clAssert(err, "Decimator::computeDecimationError: Getting workgroup info");
-	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
-	cl_int workSize = vertices + (workgroupSize - vertices % workgroupSize)%workgroupSize;
+	cl_int workgroupSize = 	getWorkgroupSize(computeDecimationError, "computeDecimationError");
+	cl_int workSize = getWorkSize(vertices, workgroupSize);
 
 	err = queue->enqueueNDRangeKernel(
 		computeDecimationError,

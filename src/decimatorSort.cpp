@@ -29,11 +29,7 @@ cl_int Decimator::sortDecimationError(const Object &obj, const std::vector<cl::E
 	cl::Kernel localBitonicSort(*program, "localBitonicSort", &err);
 	clAssert(err, "Decimator::sortDecimationError: Creating kernel");
 
-	cl_int localWorkgroupSize = (cl_int) localBitonicSort.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
-	clAssert(err, "Decimator::sortDecimationError: Getting workgroup info");
-	localWorkgroupSize = std::min(localWorkgroupSize, maxWorkgroupSize);
-
-//	cl_int workSize = vertices + (workgroupSize - vertices % workgroupSize)%workgroupSize;
+	cl_int localWorkgroupSize = getWorkgroupSize(localBitonicSort, "sortDecimationError");
 
 	if(po2 <= localWorkgroupSize*2 && po2 <= ( maxLocalSize / sizeof(cl_uint) ) )
 	{

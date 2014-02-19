@@ -148,10 +148,8 @@ cl_int Decimator::computeIndependentPoints2(const Object &obj, const std::vector
 	clAssert(err, "Decimator::computeIndependentPoints2: Adding kernel parameters");
 
 	//workSizePadding = workSizePadding == 0 ? 0 : maxWorkgroupSize - workSizePadding;
-	cl_int workgroupSize = (cl_int) findIndependentPoints2.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
-	clAssert(err, "Decimator::computeIndependentPoints2: Getting workgoup size");
-	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
-	cl_int workSize = vertices + (workgroupSize - vertices % workgroupSize)%workgroupSize;
+	cl_int workgroupSize = getWorkgroupSize(findIndependentPoints2, "computeIndependentPoints2");
+	cl_int workSize = getWorkSize(vertices ,workgroupSize);
 
 	err = queue->enqueueNDRangeKernel(
 		findIndependentPoints2,
@@ -221,10 +219,8 @@ cl_int Decimator::computeIndependentPoints3(const Object &obj, unsigned int rema
 	err |= resetUsed.setArg(ac++, pointsFoundBuffer);
 	clAssert(err, "Decimator::computeIndependentPoints3: Adding kernel paramemets");
 
-	workgroupSize = (cl_int) resetUsed.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
-	clAssert(err, "Decimator::computeIndependentPoints3: Getting workgroup size");
-	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
-	workSize = vertices + (workgroupSize - vertices % workgroupSize)%workgroupSize;
+	workgroupSize = getWorkgroupSize(resetUsed, "computeIndependentPoints3");
+	workSize = getWorkSize(vertices ,workgroupSize);
 
 	err = queue->enqueueNDRangeKernel(
 		resetUsed,
@@ -274,10 +270,8 @@ cl_int Decimator::computeIndependentPoints3(const Object &obj, unsigned int rema
 	err |= sweepIndependentPoints.setArg(ac++, pointsFoundBuffer);
 	clAssert(err, "Decimator::computeIndependentPoints3: Adding kernel parameters");
 
-	workgroupSize = (cl_int) sweepIndependentPoints.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
-	clAssert(err, "Decimator::computeIndependentPoints3: Getting workgroup size");
-	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
-	workSize = vertices + (workgroupSize - vertices % workgroupSize)%workgroupSize;
+	workgroupSize = getWorkgroupSize(sweepIndependentPoints, "computeIndependentPoints3");
+	workSize = getWorkSize(vertices ,workgroupSize);
 
 	internalWaitVector.clear();
 	internalWaitVector.push_back(markDependentPointsEvent);

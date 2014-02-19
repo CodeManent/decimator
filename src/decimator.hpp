@@ -114,6 +114,9 @@ public:
 
 	void initialise();
 	void decimate(Object &obj, Object &newObject, unsigned int targetVertices);
+
+	cl_int getWorkgroupSize(cl::Kernel &kernel, std::string funcName);
+	cl_int getWorkSize(cl_uint actualSize, cl_int workgroupSize);
 };
 
 /*

@@ -490,11 +490,8 @@ cl_int Decimator::decimateOnPoints(const Object &obj, const std::vector<cl::Even
 	err |= decimateOnPoint.setArg(ac++, failedAttemptsBuffer);
 	clAssert(err, "Decimator::decimateOnPoints: Adding kernel arguments");
 
-	cl_int workgroupSize = (cl_int) decimateOnPoint.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
-	clAssert(err, "Decimator::decimateOnPoints: Getting workgroup size");
-
-	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
-	cl_int workSize = pointsToDecimate + (workgroupSize - pointsToDecimate % workgroupSize)%workgroupSize;
+	cl_int workgroupSize = getWorkgroupSize(decimateOnPoint, "decimateOnPoint");
+	cl_int workSize = getWorkSize(pointsToDecimate ,workgroupSize);
 
     //std::clog << "Decimator::decimateOnPoints: calling kernel \"decimateOnPoint" << std::endl;
 	//std::clog << "DecimateOnPoints: " << pointsToDecimate << "(" << workSize << ")" <<  "/" << pointsFound  <<" points" << std::endl;
@@ -747,3 +744,19 @@ void clAssert(cl_int err, const char *msg)
 	throw(std::runtime_error(ss.str()));
 
 }
+
+cl_int Decimator::getWorkgroupSize(cl::Kernel & /*kernel*/, std::string funcName){
+	cl_int err = CL_SUCCESS;
+	//cl_int workgroupSize = (cl_int) kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
+	//patch for intel opencl implementation
+	cl_int workgroupSize = device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>(&err);
+	clAssert(err, ("Decimator::" + funcName + ": Getting workgroup info").c_str());
+	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
+
+	return workgroupSize;
+}
+
+cl_int Decimator::getWorkSize(cl_uint actualSize, cl_int workgroupSize){
+	return actualSize + (workgroupSize - actualSize % workgroupSize)%workgroupSize;
+}
+
