@@ -350,7 +350,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 			}
 //*/
 
-			//std::cout << "computeIndependentPoints\n";
+			std::cout << "computeIndependentPoints\n";
 			computeIndependentPoints(obj,targetVertices + verticesToTarget, &waitVector, &computeIndependentPointsEvent);
 			waitVector.clear();
 			waitVector.push_back(computeIndependentPointsEvent);
@@ -358,13 +358,13 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 			{
 				waitVector.push_back(computeDecimationErrorEvent);
 			}
-			//std::cout << "pointsFound = " << pointsFound << std::endl;
+			std::cout << "pointsFound = " << pointsFound << std::endl;
 			debugWait(computeIndependentPointsEvent);
 
 //*
 			if(this->pointsFound > 1)
 			{
-                //std::clog << "sortDecimationError" << std::endl;
+                std::clog << "sortDecimationError" << std::endl;
 				sortDecimationError(obj, &waitVector, &sortEvent);
 				waitVector.clear();
 				waitVector.push_back(sortEvent);
@@ -383,12 +383,12 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
             }
 //*/
 			try{
-				//std::clog << "decimateOnPoints" << std::endl;
+				std::clog << "decimateOnPoints" << std::endl;
 				decimateOnPoints(obj, &waitVector, &decimateOnPointsEvent, &verticesToTarget);
 			}
-			catch(std::underflow_error &)
+			catch(std::underflow_error &e)
 			{
-				//std::cout << " stopping decimation: " << e.what() << std::endl;
+				std::cout << " stopping decimation: " << e.what() << std::endl;
 				break;
 			}
 
@@ -402,7 +402,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 
 
 
-        //std::clog << "collect" << std::endl;
+        std::clog << "collect" << std::endl;
 		collectResults(newObject, obj, &waitVector, &collectResultsEvent);
 		waitVector.clear();
 		waitVector.push_back(collectResultsEvent);
@@ -500,7 +500,7 @@ cl_int Decimator::decimateOnPoints(const Object &obj, const std::vector<cl::Even
 		decimateOnPoint,
 		cl::NullRange,
 		cl::NDRange(workSize),
-		cl::NDRange(workgroupSize),
+		cl::NullRange,// cl::NDRange(workgroupSize),
 		waitVector,
 		&decimateOnPointEvent);
 
@@ -745,13 +745,21 @@ void clAssert(cl_int err, const char *msg)
 
 }
 
-cl_int Decimator::getWorkgroupSize(cl::Kernel & /*kernel*/, std::string funcName){
+cl_int Decimator::getWorkgroupSize(cl::Kernel & kernel, std::string funcName){
 	cl_int err = CL_SUCCESS;
-	//cl_int workgroupSize = (cl_int) kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
+	cl_int workgroupSize = 128;
+
+	workgroupSize = (cl_int) kernel.getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device, &err);
+//	prefSize = (cl_int) kernel.getWorkGroupInfo<CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE>(device, &err);
 	//patch for intel opencl implementation
-	cl_int workgroupSize = device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>(&err);
+//	workgroupSize = device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>(&err);
+//	workgroupSize = 1024;
+
 	clAssert(err, ("Decimator::" + funcName + ": Getting workgroup info").c_str());
+
 	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
+
+	std::cerr << funcName << ": kernel workgroup size: " << workgroupSize << std::endl;
 
 	return workgroupSize;
 }

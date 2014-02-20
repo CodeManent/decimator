@@ -1,11 +1,11 @@
 //logging constants for debugging
 
-#define LOGGING 1
+//#define LOGGING 1
 //#define LOG_COMPUTE_QUADRICS 1
 //#define LOG_COMPUTE_ERROR 1
 //#define LOG_SORTING 1
 //#define LOG_LOCAL_SORT 1
-#define LOG_INDEPENDENT_POINTS 1
+//#define LOG_INDEPENDENT_POINTS 1
 //#define LOG_PACK_LIST_ELEMENTS 1
 //#define LOG_PLACEMENT 1
 //#define LOG_DECIMATE 1
@@ -18,8 +18,8 @@
 	#define log_message printf
 #else
 	//ignore printf commands
-	#define log_message dummyPrintf
 	#define dummyPrintf(x, ...)
+	#define log_message dummyPrintf
 #endif
 
 #ifdef cl_khr_fp64
@@ -781,6 +781,9 @@ __kernel void sweepIndependentPoints(
 		//log_message("*%d - %d\n", tid, used[tid]);
 		log_message(".");
 #endif
+		if(validateList(vertexToIndicesPointers, vertexToIndicesData, indices, tid) == -1){
+			return;
+		}
 
 		for(unsigned int b = tid; b != UINT_MAX; )
 		{
@@ -793,6 +796,9 @@ __kernel void sweepIndependentPoints(
 					const unsigned int triangleVertex = indices[3*triangle +i];
 					if(triangleVertex == tid)
 					{
+						continue;
+					}
+					if(validateList(vertexToIndicesPointers, vertexToIndicesData, indices, triangleVertex) == -1){
 						continue;
 					}
 					for(unsigned int b2 = triangleVertex; b2 != UINT_MAX; )

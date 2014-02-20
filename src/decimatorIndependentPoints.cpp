@@ -193,7 +193,7 @@ cl_int Decimator::computeIndependentPoints2(const Object &obj, const std::vector
 cl_int Decimator::computeIndependentPoints3(const Object &obj, unsigned int remainingVertices, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent)
 {
 
-	//std::cout << "computeIndependentPoints3: enter" << std::endl;
+	std::cout << "computeIndependentPoints3: enter" << std::endl;
 	cl_int err = CL_SUCCESS;
 	std::vector<cl::Event> internalWaitVector;
 
@@ -221,12 +221,13 @@ cl_int Decimator::computeIndependentPoints3(const Object &obj, unsigned int rema
 
 	workgroupSize = getWorkgroupSize(resetUsed, "computeIndependentPoints3");
 	workSize = getWorkSize(vertices ,workgroupSize);
-
+	
+	std::cout << "computeIndependentPoints: before reset used" << std::endl;
 	err = queue->enqueueNDRangeKernel(
 		resetUsed,
 		cl::NDRange(0),
 		cl::NDRange(workSize),
-		cl::NDRange(workgroupSize),
+		cl::NullRange,// cl::NDRange(workgroupSize),
 		waitVector,
 		&resetUsedEvent);
 	clAssert(err, "Decimator::computeIndependentPoints3: Addig kernel to queue");
@@ -244,7 +245,7 @@ cl_int Decimator::computeIndependentPoints3(const Object &obj, unsigned int rema
 
 	workSize = std::min(std::max((unsigned int)1,remainingVertices / 100), maxComputeUnits *64);
 	//workSize = 1;
-	//std::cout << "Decimator::computeIndependentPoints3: " << workSize << " slices " << std::endl;
+	std::cout << "Decimator::computeIndependentPoints3: " << workSize << " slices " << std::endl;
 	//workSize = maxComputeUnits * 32;
 
 	internalWaitVector.push_back(resetUsedEvent);
@@ -273,13 +274,15 @@ cl_int Decimator::computeIndependentPoints3(const Object &obj, unsigned int rema
 	workgroupSize = getWorkgroupSize(sweepIndependentPoints, "computeIndependentPoints3");
 	workSize = getWorkSize(vertices ,workgroupSize);
 
+	std::cout << "computeIndependentPoints: before sweepIndependentPoints" << std::endl;
+
 	internalWaitVector.clear();
 	internalWaitVector.push_back(markDependentPointsEvent);
 	err = queue->enqueueNDRangeKernel(
 		sweepIndependentPoints,
 		cl::NDRange(0),
 		cl::NDRange(workSize),
-		cl::NDRange(workgroupSize),
+		cl::NullRange,// cl::NDRange(workgroupSize),
 		&internalWaitVector,
 		&sweepIndependentPointsEvent);
 	clAssert(err, "Decimator::computeIndependentPoints3: Adding kernel to queue");
@@ -293,7 +296,7 @@ cl_int Decimator::computeIndependentPoints3(const Object &obj, unsigned int rema
 	
 	debugWait(readEvent);
 
-	//std::cout << "findIndependentPoints3: pointsFound = " << this->pointsFound << std::endl;
+	std::cout << "findIndependentPoints3: pointsFound = " << this->pointsFound << std::endl;
 
 	if(returnedEvent)
 	{

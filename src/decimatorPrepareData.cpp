@@ -99,7 +99,7 @@ cl_int Decimator::initialiseBuffers(const Object &obj, const std::vector<cl::Eve
 		initialiseArrays,
 		cl::NullRange,
 		cl::NDRange(workSize),
-		cl::NDRange(workgroupSize),
+		cl::NullRange,// cl::NDRange(workgroupSize),
 		&internalWaitVector,
 		&initialiseArraysEvent
 		);
@@ -243,7 +243,7 @@ cl_int Decimator::computeTriangleQuadrics(const Object &obj, const std::vector<c
 		computeQuadrics,
 		cl::NullRange,
 		cl::NDRange(workSize),
-		cl::NDRange(workgroupSize),
+		cl::NullRange,// cl::NDRange(workgroupSize),
 		waitVector,
 		&computeQuadricsEvent
 		);
@@ -291,7 +291,7 @@ cl_int Decimator::computeFinalQuadrics(const Object &obj, const std::vector<cl::
 		finalQuadrics,
 		cl::NullRange,
 		cl::NDRange(workSize),
-		cl::NDRange(workgroupSize),
+		cl::NullRange,//cl::NDRange(workgroupSize),
 		waitVector,
 		&computeQuadricsEvent
 		);
@@ -334,7 +334,7 @@ cl_int Decimator::computeDecimationError(const Object &obj, const std::vector<cl
 		computeDecimationError,
 		cl::NullRange,
 		cl::NDRange(workSize),
-		cl::NDRange(workgroupSize),
+		cl::NullRange,//cl::NDRange(workgroupSize),
 		waitVector,
 		&computeDecimationErrorEvent
 		);
