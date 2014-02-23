@@ -152,6 +152,7 @@ __kernel void sweepIndependentPoints(
 									 __global unsigned int const * const used,
 									 const unsigned int usedSize,
 									 __global unsigned int * const independentPoints,
+									 const unsigned int independentPointsSize,
 									 __global unsigned int * pointsFound
 									 );
 
@@ -770,9 +771,14 @@ __kernel void sweepIndependentPoints(
 		__global unsigned int const * const used,
 		const unsigned int usedSize,
 		__global unsigned int * const independentPoints,
+		const unsigned int independentPointsSize,
 		__global unsigned int * pointsFound
 		)
 {
+	if(*pointsFound >= independentPointsSize){
+		return;
+	}
+
 	bool successfulFind = true;
 
 	const size_t tid = get_global_id(0);
@@ -842,7 +848,9 @@ __kernel void sweepIndependentPoints(
 		if(successfulFind)
 		{
 			const unsigned int pos = atom_inc(pointsFound);
-			independentPoints[pos] = tid;
+			if(independentPointsSize > pos){
+				independentPoints[pos] = tid;
+			}
 		}
 	}
 }

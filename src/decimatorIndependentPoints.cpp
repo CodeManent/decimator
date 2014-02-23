@@ -268,6 +268,7 @@ cl_int Decimator::computeIndependentPoints3(const Object &obj, unsigned int rema
 	err |= sweepIndependentPoints.setArg(ac++, *usedArray);
 	err |= sweepIndependentPoints.setArg(ac++, vertices);
 	err |= sweepIndependentPoints.setArg(ac++, *independentPoints);
+	err |= sweepIndependentPoints.setArg(ac++, cl_uint(vertices * maxIndependentPointsToVertices));
 	err |= sweepIndependentPoints.setArg(ac++, pointsFoundBuffer);
 	clAssert(err, "Decimator::computeIndependentPoints3: Adding kernel parameters");
 
