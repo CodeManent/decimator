@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <sstream>
-
+#include <memory>
 
 #include "cl.hpp"
 #include <CL/cl_gl.h>
@@ -471,7 +471,10 @@ cl_int Decimator::decimateOnPoints(const Object &obj, const std::vector<cl::Even
 		pointsToDecimate = std::min(pointsToDecimate, *verticesToTarget);
 	}
     //std::clog <<"workSize: " << workSize << std::endl;
-	cl::Buffer failedAttemptsBuffer(*context, CL_MEM_READ_WRITE, sizeof(cl_uint), 0, &err);
+	std::auto_ptr<cl_uint> failed(new cl_uint);
+	*failed = 0;
+
+	cl::Buffer failedAttemptsBuffer(*context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_uint), failed.get() /* NULL */, &err);
 	clAssert(err, "Decimator::decimateOnPoints: Creating failed attempts buffer");
 
 	cl::Kernel decimateOnPoint(*program, "decimateOnPoint", &err);

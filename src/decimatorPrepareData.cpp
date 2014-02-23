@@ -145,7 +145,7 @@ cl_int Decimator::getMaxVertexToIndices(const Object &obj)
 		max = accumulator[i] > max ? accumulator[i] : max;
 	}
 
-	delete accumulator;
+	delete[] accumulator;
 
 	return max;
 }

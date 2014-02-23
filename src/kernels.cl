@@ -38,7 +38,8 @@
 
 #pragma OPENCL EXTENSION cl_khr_global_int32_base_atomics : enable
 #pragma OPENCL EXTENSION cl_khr_global_int32_extended_atomics : enable
-
+#pragma OPENCL EXTENSION cl_khr_int64_base_atomics: enable
+#pragma OPENCL EXTENSION cl_khr_int64_extended_atomics: enable
 
 #ifdef ONLY_FLOATS
 //if doubles are not supported convert everything to float
@@ -2434,10 +2435,12 @@ __kernel void decimateOnPoint(
 		//out of range
 		return;
 	}
+	/*
 	else if(tid == 0)
 	{
 		*failedAttempts = 0;
 	}
+	*/
 
 	// get vertex
 	const unsigned int vertexId = independentPoints[tid];
