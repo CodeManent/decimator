@@ -847,7 +847,7 @@ __kernel void sweepIndependentPoints(
 		//log_message(".");
 		if(successfulFind)
 		{
-			const unsigned int pos = atom_inc(pointsFound);
+			const unsigned int pos = atomic_inc(pointsFound);
 			if(independentPointsSize > pos){
 				independentPoints[pos] = tid;
 			}
@@ -961,7 +961,6 @@ uint4 getTriangle(__global unsigned int const * const triangles, size_t index)
 {
 	return (uint4)(triangles[3*index], triangles[3*index+1], triangles[3*index+2], 0);
 }
-
 
 
 
@@ -2008,6 +2007,12 @@ bool foldOverOccurs(
 		{
 			const uint triangleID = vertexToIndicesData[ai.position + t];
 			const uint4 triangle = getTriangle(indices, triangleID);
+
+			//somehow a triangle is set to have a uint_max element in the first iteration 
+			//if(triangle.x == UINT_MAX){
+			//	continue;
+			//}
+
 			if(triangle.x == v2 || triangle.y == v2 || triangle.z == v2)
 			{
 				//this trialgle will be removed from the model at a next step of the algorithm
@@ -2114,7 +2119,8 @@ unsigned int getBestNeighbor(
 	struct arrayInfo vtip;
 	__global unsigned int const * vtid;
 	unsigned int bestMatch = UINT_MAX;
-	unsigned int bestError = UINT_MAX;
+	//unsigned int bestError = UINT_MAX;
+	double bestError = FLT_MAX;
 /*
 	//verify that has neighbors
 	bool hasNeighbors = false;
@@ -2243,6 +2249,10 @@ void packListElements(
 		const unsigned int secondTriangleToRemove
 		)
 {
+	//if(base == UINT_MAX){
+	//	return;
+	//}
+
 	__global struct arrayInfo * writeAI = vertexToIndicesPointers + base;
 	unsigned int writeSize = 0;
 
@@ -2522,13 +2532,13 @@ __kernel void decimateOnPoint(
 	//vertices[3*vertexId + 1] = FLT_MAX;
 	//vertices[3*vertexId + 2] = FLT_MAX;
 
-#if defined(LOGGING) && defined(LOG_DECIMATE)
+//#if defined(LOGGING) && defined(LOG_DECIMATE)
 	if(validateList(vertexToIndicesPointers, vertexToIndicesData, indices, bestNeighbor) != 0)
 	{
 		log_message("dop: invalid list after decimation for %d\n", bestNeighbor);
 		printList(vertexToIndicesPointers, vertexToIndicesData, bestNeighbor);
 	}
-#endif
+//#endif
 	
 	return;
 

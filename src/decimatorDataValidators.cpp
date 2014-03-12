@@ -148,6 +148,7 @@ void /*_cdecl*/ dataValidator(void *p)
 				{
 					std::cerr << "dataValidator: VertexToIndex points to invalidated triangle" << std::endl;
 					//std::cerr << '.';
+					std::cerr << "triangle: " << triangle << "(" << ind[0] << ", " << ind[1] << ", " << ind[2] << ")" << std::endl;
 					break;//continue;
 				}
 

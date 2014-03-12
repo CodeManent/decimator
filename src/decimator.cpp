@@ -215,7 +215,7 @@ void Decimator::initialise(){
 	if(runOnCPU)
 	{
 		//build with debug information
-		err = program->build(devices, "-g -w");// -s ./kernels.cl");
+		err = program->build(devices, "-g -s /home/oriong/projects/decimator/linux/kernels.cl");
 	}
 	else
 	{
@@ -335,11 +335,11 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 		{
 //*
 			//debug logging
-			if(iteration % 10 == 0)
-                std::clog << "iteration : " << iteration << std::endl;
+			//if(iteration % 10 == 0)
+                std::clog << "----------\niteration : " << iteration << std::endl;
 //*/
 			iteration++;
-/*
+//*
 			//debug - data validation
 			cl::Event validateEvent;
 			if(runOnCPU)
