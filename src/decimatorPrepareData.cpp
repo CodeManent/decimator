@@ -217,9 +217,9 @@ cl_int Decimator::computeVertexToIndices(const Object &obj, const std::vector<cl
  **********************************************************/
 cl_int Decimator::computeTriangleQuadrics(const Object &obj, const std::vector<cl::Event> *const waitVector,cl::Event *const returnedEvent)
 {
-	std::cout << "Waiting for prev events to finish" << std::endl;
+	//std::cout << "Waiting for prev events to finish" << std::endl;
 	for(size_t i = 0; i < waitVector->size(); ++i){
-		std::cout << "Waiting for event " << i << std::endl;
+		//std::cout << "Waiting for event " << i << std::endl;
 		waitVector->at(i).wait();
 	}
 
@@ -240,8 +240,8 @@ cl_int Decimator::computeTriangleQuadrics(const Object &obj, const std::vector<c
 	cl_int workgroupSize = getWorkgroupSize(computeQuadrics, "computeTriangleQuadrics");
 	cl_int workSize = getWorkSize(indices, workgroupSize);
 	
-	std::cerr << "TriangleQuadrics: before enqueue" << std::endl;
-	std::cout << "TriangleQuadrics: workgroupSize: "<< workgroupSize << "\tworkSize: " << workSize << "\tindices: << " << indices << std::endl;
+	//std::cerr << "TriangleQuadrics: before enqueue" << std::endl;
+	//std::cout << "TriangleQuadrics: workgroupSize: "<< workgroupSize << "\tworkSize: " << workSize << "\tindices: << " << indices << std::endl;
 /**/err = queue->enqueueNDRangeKernel(
 		computeQuadrics,
 		cl::NullRange,
@@ -251,9 +251,9 @@ cl_int Decimator::computeTriangleQuadrics(const Object &obj, const std::vector<c
 		&computeQuadricsEvent
 		);
 	clAssert(err, "Decimator::computeTriangleQuadrics: Adding kernel to queue");
-	std::cout << "TriangleQuadrics: after enqueue, err = " << err << std::endl;
+	//std::cout << "TriangleQuadrics: after enqueue, err = " << err << std::endl;
 	computeQuadricsEvent.wait();
-	std::cout << "TriangleQuadrics: after wait()" << std::endl;
+	//std::cout << "TriangleQuadrics: after wait()" << std::endl;
 
 	if(returnedEvent){
 		*returnedEvent = computeQuadricsEvent;
@@ -288,7 +288,7 @@ cl_int Decimator::computeFinalQuadrics(const Object &obj, const std::vector<cl::
 	cl_int workgroupSize = getWorkgroupSize(finalQuadrics, "computeFinalQuadrics");
 	cl_int workSize = getWorkSize(vertices, workgroupSize);
 
-	std::cout << "computeFinalQuadrics: wgs:" << workgroupSize << std::endl;
+	//std::cout << "computeFinalQuadrics: wgs:" << workgroupSize << std::endl;
 
 /**/err = queue->enqueueNDRangeKernel(
 		finalQuadrics,

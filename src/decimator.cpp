@@ -292,27 +292,27 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 	t.start();
 
 	try{
-		std::cout << "initailise\n";
+		//std::cout << "initailise\n";
 		waitVector.clear();
 		initialiseBuffers(obj, 0,  &initialiseArraysEvent);
 
 		debugWait(initialiseArraysEvent);
 
-		std::cout << "computeVertexToIndices\n";
+		//std::cout << "computeVertexToIndices\n";
 		waitVector.clear();
 		waitVector.push_back(initialiseArraysEvent);
 		computeVertexToIndices(obj, &waitVector, &computeVTIEvent);
 
 		debugWait(computeVTIEvent);
 
-		std::cout << "computeTriangleQuadrics\n";
+		//std::cout << "computeTriangleQuadrics\n";
 		waitVector.clear();
 		waitVector.push_back(initialiseArraysEvent);
 		computeTriangleQuadrics(obj, &waitVector, &computeQuadricsEvent);
 
 		debugWait(computeQuadricsEvent);
 
-		std::cout << "computeFinalQuadrics\n";
+		//std::cout << "computeFinalQuadrics\n";
 		waitVector.clear();
 		waitVector.push_back(computeQuadricsEvent);
 		waitVector.push_back(computeVTIEvent);
@@ -320,7 +320,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 
 		debugWait(computeFinalQuadricsEvent);
 
-		std::cout << "computeDecimationError\n";
+		//std::cout << "computeDecimationError\n";
 		waitVector.clear();
 		waitVector.push_back(computeFinalQuadricsEvent);
 		computeDecimationError(obj, &waitVector, &computeDecimationErrorEvent);
@@ -330,16 +330,16 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 		waitVector.clear();
 		waitVector.push_back(computeVTIEvent);
 
-		std::cerr << "Decimator: entering loop" << std::endl;
+		//std::cerr << "Decimator: entering loop" << std::endl;
 		do
 		{
 //*
 			//debug logging
 			//if(iteration % 10 == 0)
-                std::clog << "----------\niteration : " << iteration << std::endl;
+                //std::clog << "----------\niteration : " << iteration << std::endl;
 //*/
 			iteration++;
-//*
+/*
 			//debug - data validation
 			cl::Event validateEvent;
 			if(runOnCPU)
@@ -350,7 +350,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 			}
 //*/
 
-			std::cout << "computeIndependentPoints\n";
+			//std::cout << "computeIndependentPoints\n";
 			computeIndependentPoints(obj,targetVertices + verticesToTarget, &waitVector, &computeIndependentPointsEvent);
 			waitVector.clear();
 			waitVector.push_back(computeIndependentPointsEvent);
@@ -358,13 +358,13 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 			{
 				waitVector.push_back(computeDecimationErrorEvent);
 			}
-			std::cout << "pointsFound = " << pointsFound << std::endl;
+			//std::cout << "pointsFound = " << pointsFound << std::endl;
 			debugWait(computeIndependentPointsEvent);
 
 //*
 			if(this->pointsFound > 1)
 			{
-                std::clog << "sortDecimationError" << std::endl;
+                //std::clog << "sortDecimationError" << std::endl;
 				sortDecimationError(obj, &waitVector, &sortEvent);
 				waitVector.clear();
 				waitVector.push_back(sortEvent);
@@ -383,7 +383,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
             }
 //*/
 			try{
-				std::clog << "decimateOnPoints" << std::endl;
+				//std::clog << "decimateOnPoints" << std::endl;
 				decimateOnPoints(obj, &waitVector, &decimateOnPointsEvent, &verticesToTarget);
 			}
 			catch(std::underflow_error &e)
@@ -402,7 +402,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 
 
 
-        std::clog << "collect" << std::endl;
+        //std::clog << "collect" << std::endl;
 		collectResults(newObject, obj, &waitVector, &collectResultsEvent);
 		waitVector.clear();
 		waitVector.push_back(collectResultsEvent);
@@ -458,7 +458,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
  **********************************************************/
 cl_int Decimator::decimateOnPoints(const Object &obj, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent, unsigned int *const verticesToTarget)
 {
-	clAssert(queue->flush(), "flushing queue");
+	//clAssert(queue->flush(), "flushing queue");
 	debugWait((*waitVector)[0]);
 
 	cl_int err = CL_SUCCESS;
@@ -473,8 +473,11 @@ cl_int Decimator::decimateOnPoints(const Object &obj, const std::vector<cl::Even
     //std::clog <<"workSize: " << workSize << std::endl;
 	cl_uint failed = 0;
 
-	queue->enqueueWriteBuffer(*failedAttemptsBuffer, CL_FALSE, 0, sizeof(failed), &failed);
+	cl::Event writeEvent;
+	queue->enqueueWriteBuffer(*failedAttemptsBuffer, CL_FALSE, 0, sizeof(failed), &failed, waitVector, &writeEvent);
 	clAssert(err, "Decimator::decimateOpPoints: initializing failedAttemptsBuffer");
+    std::vector<cl::Event> writeInternalWaitVector(1, writeEvent);
+
 
 
 	cl::Kernel decimateOnPoint(*program, "decimateOnPoint", &err);
@@ -504,7 +507,7 @@ cl_int Decimator::decimateOnPoints(const Object &obj, const std::vector<cl::Even
 		cl::NullRange,
 		cl::NDRange(workSize),
 		cl::NullRange,// cl::NDRange(workgroupSize),
-		waitVector,
+		&writeInternalWaitVector,
 		&decimateOnPointEvent);
 
 	clAssert(err, "Decimator::decimateOnPoints: Adding kernel to queue");
@@ -764,7 +767,7 @@ cl_int Decimator::getWorkgroupSize(cl::Kernel & kernel, std::string funcName){
 
 	workgroupSize = std::min(workgroupSize, maxWorkgroupSize);
 
-	std::cerr << funcName << ": kernel workgroup size: " << workgroupSize << std::endl;
+	//std::cerr << funcName << ": kernel workgroup size: " << workgroupSize << std::endl;
 
 	return workgroupSize;
 }

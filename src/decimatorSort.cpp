@@ -33,7 +33,7 @@ cl_int Decimator::sortDecimationError(const Object &obj, const std::vector<cl::E
 
 	if(po2 <= localWorkgroupSize*2 && po2 <= ( maxLocalSize / sizeof(cl_uint) ) )
 	{
-		std::cout << "sortDecimationError: local sort" << std::endl;
+		//std::cout << "sortDecimationError: local sort" << std::endl;
 
 		cl_uint ac = 0;//argument counter
 		err  = localBitonicSort.setArg(ac++, *errorArray);
@@ -56,7 +56,7 @@ cl_int Decimator::sortDecimationError(const Object &obj, const std::vector<cl::E
 	else
 //*/
 	{
-		std::cout << "sortDecimationError: global sort" << std::endl;
+		//std::cout << "sortDecimationError: global sort" << std::endl;
 		cl_int ac = 0;
 		//local presort
 		cl::Kernel localPreSortARB(*program, "localBitonicPreSortARB", &err);
