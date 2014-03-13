@@ -612,6 +612,7 @@ cl_int Decimator::collectResults(Object &ret, const Object &obj, const std::vect
     // std::clog << "skippedTriangles: " << discardedTriangles << std::endl;
 
 	delete[] newVertices;
+	delete[] relocationData;
 	delete[] newIndices;
 
 	if(returnedEvent)
