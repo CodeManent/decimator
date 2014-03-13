@@ -847,7 +847,7 @@ __kernel void sweepIndependentPoints(
 		//log_message(".");
 		if(successfulFind)
 		{
-			const unsigned int pos = atomic_inc(pointsFound);
+			const unsigned int pos = atom_inc(pointsFound);
 			if(independentPointsSize > pos){
 				independentPoints[pos] = tid;
 			}
@@ -2462,6 +2462,11 @@ __kernel void decimateOnPoint(
 
 	// get vertex
 	const unsigned int vertexId = independentPoints[tid];
+	if(validateList(vertexToIndicesPointers, vertexToIndicesData, indices, vertexId) != 0){
+		atom_inc(failedAttempts);
+		log_message("DecimateOnPoint kernel: Invalid list for vertex %d, tid = %d\n", vertexId, tid);
+		return;
+	}
 	const unsigned int bestNeighbor = getBestNeighbor(vertices, indices, vertexToIndicesPointers, vertexToIndicesData, quadrics, errorArray, vertexId);
 
 	if(vertexId == UINT_MAX || bestNeighbor == UINT_MAX)

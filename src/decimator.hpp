@@ -57,6 +57,7 @@ class Decimator{
     int independentPointsAlgorithm;	// Ο αλγόριθμος εύρεσης ανεξάρτητων κορυφών που θα χρησιμοποιηθεί
 	cl_int pointsFound;				// Το πλήθος των ανεξάρτητων κορυφών που βρέθηκαν
 	cl::Buffer *independentPoints;	// Memory buffer με τις ανεξάρτητες κορυφές
+	cl::Buffer *failedAttemptsBuffer;
 
 	//Αρχικοποίηση των Memory buffers
 	cl_int initialiseBuffers		(const Object &obj, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);

@@ -76,6 +76,9 @@ cl_int Decimator::initialiseBuffers(const Object &obj, const std::vector<cl::Eve
 	independentPoints = new cl::Buffer(*context, CL_MEM_READ_WRITE,(size_t)( sizeof(cl_uint) * vertices * maxIndependentPointsToVertices), 0, &err);
 	clAssert(err, "Decimator::initialiseBuffers: Creating independentPoints buffer");
 
+	failedAttemptsBuffer = new cl::Buffer(*context, CL_MEM_READ_WRITE, sizeof(cl_uint), 0, &err);
+	clAssert(err, "Decimator::initialiseBuffers: Creating failedAttemptsBuffer");
+
 
 
 	//initialise arrays

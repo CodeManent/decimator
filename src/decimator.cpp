@@ -212,15 +212,15 @@ void Decimator::initialise(){
 	program = new cl::Program(*context, source, &err);
 	clAssert(err, "Decimator::initialise: Creating the program object");
 
-	if(runOnCPU)
-	{
+//	if(runOnCPU)
+//	{
 		//build with debug information
-		err = program->build(devices, "-g -s /home/oriong/projects/decimator/linux/kernels.cl");
-	}
-	else
-	{
+//		err = program->build(devices, " -g -s /home/oriong/projects/decimator/linux/kernels.cl");
+//	}
+//	else
+//	{
 		err = program->build(devices);
-	}
+//	}
 
 	if(err != CL_SUCCESS){
 		cl_int build_log_err = CL_SUCCESS;
@@ -471,11 +471,11 @@ cl_int Decimator::decimateOnPoints(const Object &obj, const std::vector<cl::Even
 		pointsToDecimate = std::min(pointsToDecimate, *verticesToTarget);
 	}
     //std::clog <<"workSize: " << workSize << std::endl;
-	std::auto_ptr<cl_uint> failed(new cl_uint);
-	*failed = 0;
+	cl_uint failed = 0;
 
-	cl::Buffer failedAttemptsBuffer(*context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_uint), failed.get() /* NULL */, &err);
-	clAssert(err, "Decimator::decimateOnPoints: Creating failed attempts buffer");
+	queue->enqueueWriteBuffer(*failedAttemptsBuffer, CL_FALSE, 0, sizeof(failed), &failed);
+	clAssert(err, "Decimator::decimateOpPoints: initializing failedAttemptsBuffer");
+
 
 	cl::Kernel decimateOnPoint(*program, "decimateOnPoint", &err);
 	clAssert(err, "Decimator::decimateOnPoints: Creating kernel");
@@ -490,7 +490,7 @@ cl_int Decimator::decimateOnPoints(const Object &obj, const std::vector<cl::Even
 	err |= decimateOnPoint.setArg(ac++, *vertexToIndicesData);
 	err |= decimateOnPoint.setArg(ac++, maxVertexToIndices);
 	err |= decimateOnPoint.setArg(ac++, pointsToDecimate);
-	err |= decimateOnPoint.setArg(ac++, failedAttemptsBuffer);
+	err |= decimateOnPoint.setArg(ac++, *failedAttemptsBuffer);
 	clAssert(err, "Decimator::decimateOnPoints: Adding kernel arguments");
 
 	cl_int workgroupSize = getWorkgroupSize(decimateOnPoint, "decimateOnPoint");
@@ -514,7 +514,7 @@ cl_int Decimator::decimateOnPoints(const Object &obj, const std::vector<cl::Even
 
     std::vector<cl::Event> internalWaitVector(1, decimateOnPointEvent);
 	cl_uint failedAttempts = 0;
-    err = queue->enqueueReadBuffer(failedAttemptsBuffer, CL_TRUE, 0, sizeof(cl_uint), &failedAttempts, &internalWaitVector, &readEvent);
+    err = queue->enqueueReadBuffer(*failedAttemptsBuffer, CL_TRUE, 0, sizeof(cl_uint), &failedAttempts, &internalWaitVector, &readEvent);
 	clAssert(err, "Decimator::decimateOnPoints: Error reading failed attempts buffer");
 
 	debugWait(readEvent);
@@ -661,6 +661,7 @@ cl_int Decimator::cleanup(const std::vector<cl::Event> *const waitVector, cl::Ev
 	if(vertexToIndicesPointers){delete vertexToIndicesPointers; vertexToIndicesPointers = NULL;	}
 
 	if(independentPoints)	{	delete independentPoints;	independentPoints = NULL;	}
+	if(failedAttemptsBuffer){	delete failedAttemptsBuffer; failedAttemptsBuffer = NULL; }
 
 
 	queue->finish();
