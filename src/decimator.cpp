@@ -456,7 +456,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
  **********************************************************/
 cl_int Decimator::decimateOnPoints(const Object &obj, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent, unsigned int *const verticesToTarget)
 {
-	clAssert(queue->flush(), "flushing queue");
+	//clAssert(queue->flush(), "flushing queue");
 	debugWait((*waitVector)[0]);
 
 	cl_int err = CL_SUCCESS;

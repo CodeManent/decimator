@@ -89,16 +89,16 @@ cl_int Decimator::computeIndependentPoints1(const Object &obj, const std::vector
 	clAssert(err, "Decimator::computeIndependentPoints1: Adding kernel to queue");
 
 
-	clAssert(queue->flush(), "flushing queue");
+	//clAssert(queue->flush(), "flushing queue");
 	debugWait(independentPointsEvent);
 
 	internalWaitVector.push_back(independentPointsEvent);
 	err = queue->enqueueReadBuffer(pointsFoundBuffer, CL_TRUE, 0, sizeof(cl_uint), &(this->pointsFound), &internalWaitVector, &readEvent);
 	clAssert(err, "Decimator::computeIndependentPoints1: Reading the number of points found");
 
-	clAssert(queue->flush(), "flushing queue");
+	//clAssert(queue->flush(), "flushing queue");
 	debugWait(readEvent);
-	clAssert(queue->flush(), "flushing queue");
+	//clAssert(queue->flush(), "flushing queue");
 	//std::cout << "computeIndependentPoints: Points found = " << this->pointsFound << std::endl;
 
 
@@ -122,7 +122,7 @@ cl_int Decimator::computeIndependentPoints2(const Object &obj, const std::vector
 	cl_int err = CL_SUCCESS;
 
 	debugWait((*waitVector)[0]);
-	clAssert(queue->flush(), "flushing queue");
+	//clAssert(queue->flush(), "flushing queue");
 
 	const cl_uint vertices = (cl_int) obj.vertices.size();
 	//cl_uint workSizePadding = vertices % maxWorkgroupSize;
@@ -163,7 +163,7 @@ cl_int Decimator::computeIndependentPoints2(const Object &obj, const std::vector
 		);
 	clAssert(err, "Decimator::computeIndependentPoints2: Adding kernel to queue");
 
-	clAssert(queue->flush(), "flushing queue");
+	//clAssert(queue->flush(), "flushing queue");
 	debugWait(independentPointsEvent);
 
 	internalWaitVector.clear();
@@ -171,7 +171,7 @@ cl_int Decimator::computeIndependentPoints2(const Object &obj, const std::vector
 	err = queue->enqueueReadBuffer(pointsFoundBuffer, CL_TRUE, 0, sizeof(cl_uint), &(this->pointsFound), &internalWaitVector, &readEvent);
 	clAssert(err, "Decimator::computeIndependentPoints2: Reading the number of points found");
 
-	clAssert(queue->flush(), "flushing queue");
+	//clAssert(queue->flush(), "flushing queue");
 	debugWait(readEvent);
 
 	//std::cout << "findIndependentPoints2: pointsFound = " << this->pointsFound << std::endl;
