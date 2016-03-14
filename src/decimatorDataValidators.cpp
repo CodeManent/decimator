@@ -12,14 +12,9 @@ void /*_cdecl*/ dataValidator(void *);
 void /*_cdecl*/ independentPointsValidator(void *);
 
  /**********************************************************
- Μπορεί να εκτελεστεί μόνο όταν σαν συσκευή εκτέλεσης έχει 
- οριστεί η CPU.
+ Can be executed only when the exeution device is the CPU
 
- Ελέγχεται η εγκυτότητα των δεδομένων που υπάρχει στα buffer
- objects.
-
- Δημιουργεί τη λίστα με τα memory objects που θα ελεγχούν και
- και καλέι τον native kernel dataValidator.
+Checks the validity of the data that reside on the buffer objects
  **********************************************************/
 cl_int Decimator::validateData(const Object &obj, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent)
 {
@@ -92,12 +87,10 @@ cl_int Decimator::validateData(const Object &obj, const std::vector<cl::Event> *
 }
 
  /**********************************************************
- Μπορεί να εκτελεστεί μόνο όταν σαν συσκευή εκτέλεσης έχει 
- οριστεί η CPU.
-
- Η συνάρτηση που χρησιμοπιιείται σαν native kernel η οποία
- ελέγχει την εγκυτότητα των δεδομένων που υπάρχουν στα memory
- objects.
+ Can be executed only when the exeution device is the CPU
+ 
+ The function that is used as a native kernel which validates the
+ data in the memory buffers.
  **********************************************************/
 void /*_cdecl*/ dataValidator(void *p)
 {
@@ -210,14 +203,9 @@ void /*_cdecl*/ dataValidator(void *p)
 }
 
  /**********************************************************
- Μπορεί να εκτελεστεί μόνο όταν σαν συσκευή εκτέλεσης έχει 
- οριστεί η CPU.
-
- Ελέγχεται η εγκυτότητα των δεδομένων στον πίνακα των
- ανεξάρτητων κορυφών.
-
- Δημιουργεί τη λίστα με τα memory objects που θα χρηδιμοποιηθούν
- και καλεί τον native kernel independentPointsValidator.
+ Can be executed only when the exeution device is the CPU.
+ 
+ Checks the validity of the data in the independent points array.
  **********************************************************/
 cl_int Decimator::validateIndependentPoints(const Object &obj, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent)
 {
@@ -299,12 +287,11 @@ cl_int Decimator::validateIndependentPoints(const Object &obj, const std::vector
 }
 
  /**********************************************************
- Μπορεί να εκτελεστεί μόνο όταν σαν συσκευή εκτέλεσης έχει 
- οριστεί η CPU.
+ Can be executed only when the exeution device is the CPU.
 
- Η συνάρτηση που χρησιμοποιείται σαν native kernel η οποία
- ελέγχει την εγκυτότητα των του πίνακα των ανεξάρτητων 
- κορυφών.
+
+ The function that is used as a native kernel which validates the
+ data in the independent points array.
  **********************************************************/
 void /*_cdecl*/ independentPointsValidator(void *p)
 {
