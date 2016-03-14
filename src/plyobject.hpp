@@ -6,8 +6,7 @@
 #include <string>
 
 /*
-	Κλάση που αναπαριστά το μοντέλο που θα φορτωθεί ή θα αποθηκευθεί
-	σε αρχείο με δομή .ply
+	Class representing the model that will be loaded/saved in a .ply file
 */
 class PLYObject: public Object{
 public:

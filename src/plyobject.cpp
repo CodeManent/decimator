@@ -21,7 +21,7 @@ PLYObject::PLYObject(void)
 
 
 /**********************************************************
-	Constructor που δημιουργεί το μοντέλο από ένα αρχείο.
+	Constructor that creates a model from a file
 **********************************************************/
 PLYObject::PLYObject(string filename)
 {
@@ -41,11 +41,11 @@ PLYObject::~PLYObject(void)
 
 
 /**********************************************************
-	Callback που χρησιμοποιείται από την rply για το διάβασμα
-	των κορυφών του μοντέλου από το αρχείο.
-
-	Κάθε τρείς αριθμούς που διαβάζουμε, τους προσθέτουμε στο
-	μοντέλο σαν μια κορυφή.
+	Callback that is used by rply to read the vertices of the model
+	from the file.
+	
+	After we read three numbers, we add them in the
+	model as a vertex.
 **********************************************************/
 static int vertexCallback(p_ply_argument argument){
 	static unsigned int pos = 0;
@@ -79,11 +79,14 @@ static int vertexCallback(p_ply_argument argument){
 
 
 /**********************************************************
-	Callback που χρησιμοποιείται από την rply για το διάβασμα
-	των τριγώνων του μοντέλου από το αρχείο.
+	Callback that is used by rply to read the triangles of the
+	model the file.
 
-	Κάθε τρείς αριθμούς που διαβάζουμε τους προσθέτουμε στο
-	μοντέλο σαν ένα τρίγωνο.
+	For each three numbers that we read, we add them in the
+	model as a vertex.
+	
+	After we read three numbers, we add them in the
+	model as a triangle.
 **********************************************************/
 static int faceCallback(p_ply_argument argument){
 	long length, value_index;
@@ -128,10 +131,7 @@ static int faceCallback(p_ply_argument argument){
 
 
 /**********************************************************
-	Φορτώνει ένα μοντέλο από το .ply αρχείο που ορίζεται με
-	βοήθεια της rply. Στις callbacks δίνετα σαν παράμετρος
-	χρήστη και το τρέχον αντικείμενο (this) στο οποίο θα μπούν
-	οι κορυφές καιτα τρίγωνα που θα φορτωθούν.
+	Loads a model from the specified .ply file by using rply.
 **********************************************************/
 void PLYObject::loadFromFile(string path){
 	long nvertices, ntriangles;
@@ -169,19 +169,13 @@ void PLYObject::loadFromFile(string path){
 
 
 /**********************************************************
-	Σώζει το μοντέλο στο αρχείο που ορίζεται.
+	Saves the model to the specified file.
 
-	Παράμετροι:
-		path			Το αρχείο προορισμού.
-		obj				Το μοντέλο που θα χρησιμοποιηθεί.
-		overwrite		Αν το αρχείο υπάρχει ήδη, διαγράφεται
-		ccwTriangles	Αντιστροφή ή όχι της φοράς των τριγώνων.
-
-	Αρχικά ελέγχει αν το αρχείο προορισμού υπάρχει ήδη. Ύστερα
-	ανοίγει το αρχείο, γράφει την επικεφαλίδα που απαιτείται
-	από τον ορισμό της δομής του .ply  αρχείου. Γράφει στο
-	αρχείο τις κορυφές και μετά τα τρίγωνα που υπάρχουν στο
-	μοντέλο και κλείνει το αρχείο.
+	Parameters:
+		path			The destination file.
+		obj				The model that will be used
+		overwrite		Overwrite the file if it already exists
+		ccwTriangles	Winding of the triangles.
 **********************************************************/
 void PLYObject::saveToFile(string path, Object &obj, bool overwrite, bool ccwTriangles)
 {
