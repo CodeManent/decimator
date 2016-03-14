@@ -8,8 +8,7 @@
 using namespace std;
 
 /**********************************************************
- Καθολική μεταβλητή που κρατά τις παραμέτρους εκτέλεσης
- του προγράμματος.
+Global variable that holds the execution parameters
 **********************************************************/
 Configuration configuration;
 
@@ -18,7 +17,7 @@ Configuration configuration;
 
 
 /**********************************************************
- Constructor που βάζει τις προεπιλεγμένες τιμές στη δομή
+ Constructor setting the default parameters
 **********************************************************/
 Configuration::Configuration(void):
 	infile(),
@@ -43,7 +42,7 @@ Configuration::~Configuration(void)
 
 
 /**********************************************************
-Εμφάνιση των τιμών της δομής στην κονσόλα
+Prints the configuration to the console
 **********************************************************/
 void Configuration::print() const
 {
@@ -64,7 +63,7 @@ void Configuration::print() const
 
 
 /**********************************************************
-Εμφάνιση στην κονσόλα το μήνυμα χρήσης του προγράμματος
+Prints on the console how to use the program
 **********************************************************/
 void Configuration::showUsage()
 {
@@ -101,8 +100,7 @@ independentPointsAlgorithm: 3\n\
 
 
 /**********************************************************
- Διαβάζει τις όποιες παραμέτρους δώθηκαν από τον χρήστη στη
- γραμμή εντολών και τις ελέγχει για εγκυρότητα.
+Reads and validates the parameters
 **********************************************************/
 void Configuration::getFromCommangLine(int &argc, char * argv[])
 {
