@@ -7,9 +7,8 @@
 #include "decimator.hpp"
 
  /**********************************************************
- Ταξινόμηση των ανεξάρτητων κορυφών βάσει του σφάλματος που
- αντιστοιχεί στην καθεμιά.Ο αλγόριθμος ταξινόμησης που
- υλοποιείται είναι ο bitonic sort.
+ Sorts the independent points based on the error.
+ The sorting algorithm is bitonic sort.
  **********************************************************/
 
 cl_int Decimator::sortDecimationError(const Object &obj, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent)
