@@ -7,21 +7,20 @@
 #include "camera.hpp"
 
 /*
-	Ορισμός της κλάσης που αναπαριστά τη σκηνή που οπτικοποιείται
-	στο παράθυρο της εφαρμογής
+	Represents the scene to be visualized in the window of the program
 */
 class Scene{
 public:
 
-	Camera camera;		// Η κάμερα που χρησιμοποιείται
-	std::vector<Object *> objects; // Τα μοντέλα που συμμετέχουν στη σκηνή
+	Camera camera;		// The camera t be used
+	std::vector<Object *> objects; // The models taking part in teh scene
 
-	int windowWidth;	// Το πλάτος του παραθύρου
-	int windowHeight;	// Το ύψος του παραθύρου
+	int windowWidth;	// The idth  of the window
+	int windowHeight;	// The height of the window
 
-	void registerObject(Object * obj); // Προσθήκη ενός μοντέλου
+	void registerObject(Object * obj); // Adding a model
 
-	void printInfo();	// Εμφάνιση πληροφοριών στην κοονσόλα
+	void printInfo();	// Dump information in the console
 
 	Scene();
 	~Scene();

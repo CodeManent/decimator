@@ -4,7 +4,7 @@
 #include <algorithm>
 
 /**********************************************************
- Καθολική μεταβλητή που κρατά την σκηνή προς οπτικοποίηση.
+ Global var that holds the scene to be visualized
 **********************************************************/
 Scene scene;
 
@@ -17,7 +17,7 @@ Scene::Scene()
 
 
 /**********************************************************
- Διαγραφή των μοντέλων που περιέχει η σκηνή.
+ Desctructor, delets the models in the scene
 **********************************************************/
 Scene::~Scene(){
 	for(unsigned int i=0; i< objects.size(); ++i){
@@ -31,7 +31,7 @@ Scene::~Scene(){
 
 
 /**********************************************************
- Προσθήκη ενός αντικειμένου στη σκηνή
+ Adds an object in the scene
 **********************************************************/
 void Scene::registerObject(Object *obj){
 	objects.push_back(obj);
@@ -41,8 +41,7 @@ void Scene::registerObject(Object *obj){
 
 
 /**********************************************************
- Εμφάνιση στην κονσόλα πληροφορίες για τη σκηνή και
- τα φορτωμένα μοντέλα.
+ Shows information about the scene and the loaded models
 **********************************************************/
 void Scene::printInfo(){
 	//unsigned int totalTriangles = 0, totalVertices = 0, i;
