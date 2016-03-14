@@ -44,9 +44,9 @@ Decimator::Decimator():
 }
 
  /**********************************************************
- Βοηθητική συνάρτηση η οποία καλείται από την OpenCL σε
- περίπτωση σφάλματος και μέσω της οποίας  ο driver μας δίνει
- τις σχετικές πληροφορίες.
+ Helper function that is called from the OpenCL runtime incase 
+ of an error and through which the driver passes some 
+ relevant information.
  **********************************************************/
 void CL_CALLBACK notifyFunction(const char *msg, const void* , ::size_t size, void* v)
 {
@@ -64,8 +64,7 @@ Decimator::~Decimator()
 
 
  /**********************************************************
- Θέτει την μεταβλητή που ορίζει αν η εκτέλεση θα γίνει στη
- CPU ή όχι (δλδ στη GPU).
+ Sets the variable that specifiec the execution platform
  **********************************************************/
 void Decimator::setRunOnCPU(bool b)
 {
@@ -76,8 +75,8 @@ void Decimator::setRunOnCPU(bool b)
 
 
  /**********************************************************
- Θέτει την μεταβλητή που ορίζει το ποσοστό των ανεξάρτητων
- κορυφών που θα χρησιμοποιηθούν στο τμήμα των συρρικνώσεων.
+ Sets the variable that specifies the percentile of the independent
+ vertices that will be used during the decimation
  **********************************************************/
 void Decimator::setIndependentPointsPerPassFactor(float f)
 {
@@ -91,8 +90,7 @@ void Decimator::setIndependentPointsPerPassFactor(float f)
 
 
  /**********************************************************
- Θέτει την μεταβλητή που ορίζει το αρχείο που βρίσκονται οι
- kernels.
+ Sets the variable that specifies the path for the kernels
  **********************************************************/
 void Decimator::setKernelFilename(const char *str)
 {
@@ -103,8 +101,7 @@ void Decimator::setKernelFilename(const char *str)
 
 
  /**********************************************************
- Θέτει την μεταβλητή που ορίζει τον αλγόριθμο ταξινόμησης
- που θα χρησιμοποιηξθεί.
+ Sets the variable that specifes the sorting algorithm
  **********************************************************/
 void Decimator::setIndependentPointsAlgorithm(int i)
 {
@@ -123,7 +120,9 @@ void Decimator::setIndependentPointsAlgorithm(int i)
 
 
 /*
-	Αρχικοποίηση του decimator
+	Decimator initialization
+	
+	
 
 	Παίρνουμε τις OpenCL platforms που υπάρχουν στον υπολογιστή.
 	Σε κάθε μία διατρέουμε τις συσκευές μέχρι να βρούμε κάποια
@@ -141,7 +140,7 @@ void Decimator::initialise(){
 
 	std::vector<cl::Platform> platformList;
 
-	// get the platfoem list
+	// get the platform list
 	cl::Platform::get(&platformList);
 	if(platformList.size() == 0)
 	{
@@ -253,12 +252,11 @@ void Decimator::initialise(){
 
 
  /**********************************************************
- Η μέθοδος με την οποία απλοποιούμε ένα μοντέλο.
-
- Εδώ ορίζεται η συνολική δομή του αλγορίθμου απλοποίησης.
- Η υλοποίηση της διαδικάσιας του κάθε τμήματος γίνεται στις
- αντίστοιχες μεθόδους που αυτές με την σείρά τους καλούν τους
- κατάλληλους kernels.
+ The method that is used to simplify a model
+ 
+ Here we have the general structure of the algorithm.
+Each part is implemented on the relevant methods which call
+the appropriate kernels 
  **********************************************************/
 void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVertices){
 	unsigned int verticesToTarget = (unsigned int) obj.vertices.size() - targetVertices;
@@ -443,18 +441,16 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 }
 
  /**********************************************************
- Μέδοδος η οποία καθοδηγεί την διαδικασία συρρίκνωσης ακμών.
-
- Μέσω της independentPointsPerPassFactor υπολογίζεται ο 
- ακριβής αριθμος των κορυφών που θα χρησιμοποιηθούν κατά την
- απλοπίηση.
-
- Ο kernel που υλοποιεί τις συρρικνώσεις είναι decimateOnPoint.
-
- Μόλις ολοκληρώσει τη λειτουργία του διαβάζουμε το memory
- buffer για τον αριθμό των συρρικνώσεων που απέτυχαν. Αν 
- αποτύχουν όλες οι συρρρικνώσείς τότε αυτό δηλώνεται με
- τη χρήση ενός exception.
+ The method that drives the edge collapse
+ 
+ The number of the vertices that wil be used is computed using 
+ the independentPointsPerPassFactor var.
+ 
+ The kernel that performs the collapses is called  decimateOnPoint.
+ 
+ As soon as the kernel finishes its execution, we reaf the memory
+ buffer for the number of the failed collapses. If all the collapses
+ fail an exception is raised.
  **********************************************************/
 cl_int Decimator::decimateOnPoints(const Object &obj, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent, unsigned int *const verticesToTarget)
 {
@@ -547,13 +543,13 @@ cl_int Decimator::decimateOnPoints(const Object &obj, const std::vector<cl::Even
 }
 
  /**********************************************************
- Συλλογή του τελικού απλοποιημένου μοντέλου.
-
- Διαβάζονται τα memory buffers από την openCL που αφορούν
- τις κορυφές και τα τρίγωνα του μοντέλου. Φιλτράρονται έτσι
- ώστε να αφαιρεθούν οι κορυφές και τα τρίγωνα που έχουν
- σημειωθεί ως διαγραμμένα. Τα δεδομένα που τελικά αποτελούν
- το απλοποιημένο μοντέλο προσθέτονται στο ret.
+ Collection of the resulting simplified model
+ 
+ We get the triangles and the verices of the model from the 
+ OpenCL memoty buffers. 
+ The next step is to filter then to remove the vertices and
+ triangles that have been marked as deleted.
+ The final simplified model is placed in ret.
  **********************************************************/
 cl_int Decimator::collectResults(Object &ret, const Object &obj, const std::vector<cl::Event> *const waitVector , cl::Event *const returnedEvent)
 {
@@ -627,11 +623,7 @@ cl_int Decimator::collectResults(Object &ret, const Object &obj, const std::vect
 }
 
  /**********************************************************
- Ελευθέρωση των πόρων που δεσμεύονται για την απλοποίηση
- ενός μοντέλου.
-
- Διαγράφονται τα αντικείμενα μνήμης και έτσι επιστρέφεται
- η δεσμευμένη μνήμη στην OpenCL.
+ Frees the allocated resources
  **********************************************************/
 cl_int Decimator::cleanup(const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent)
 {
@@ -680,11 +672,11 @@ cl_int Decimator::cleanup(const std::vector<cl::Event> *const waitVector, cl::Ev
 }
 
  /**********************************************************
- Βοηθητική συνάρτηση ελέγχου της τιμής επιστροφής των κλήσεων
- που γίνονται στην OpenCL.
+ Helper function that checkes the value which is returned by 
+ OpenCL calls.
 
- Σε περίπτωση σφάλματος σημιουργείται runtime error exception
- που περιέχει το αντίστοιχο μήμυμα.
+ In case of an error, an exception is raised with the relevant 
+ message
  **********************************************************/
 void clAssert(cl_int err, const char *msg)
 {

@@ -8,8 +8,8 @@
 
 #include "object.hpp"
 /*
-	Δομή που χρησιμοποιείται από την OpenCL για τους δείκτες
-	από τις κορυφές προς τα τρίγωνα
+	Structure used by OpenCL for the pointers from the vertices
+	to the triangles
 */
 struct arrayInfo{
 	cl_uint position;
@@ -18,89 +18,90 @@ struct arrayInfo{
 };
 
 /*
-	Κλαση που αναλαμβάνει την απλοποίηση του μοντέλου
+	The class that handles the simplification of the model
 */
 class Decimator{
 	enum {SORT_ASCENDING = CL_TRUE, SORT_DESCENDING = CL_FALSE};
 
-	bool runOnCPU;					// Εκτέλεση της OpenCL στον επεξεραγαστή
+	bool runOnCPU;
 
-	std::string kernelFilename;		// Το αρχείο που βρίσκονται οι kernels
-	cl::Context *context;			// To context τηε OpenCL
-	cl::CommandQueue *queue;		// Η ουρά εκτέλεσης που χρησιμοποιείται.
-	cl::Device device;				// Η συσκευή στην οποία εκτελείται ο κώδικας
-	cl::Program *program;			// Δείκτης για το μεταγλωττισμένο πρόγραμμα για τη συσκευή που θα χρησιμοποιηθεί
+	std::string kernelFilename;
+	cl::Context *context;
+	cl::CommandQueue *queue;
+	cl::Device device;
+	cl::Program *program;			// A pointer to the compiled program for the device that will be used
 
-	cl_int maxWorkgroupSize;		// Ο μέγιστος αριθμός workgroup που υποστηρίζει η συσκευή
-	cl_uint maxComputeUnits;		// Ο αριθμός των μονάδων επεξεργασίας της συσκευής
-	cl_uint maxVertexToIndices;		// Ο μέγιστος αριθμός τριγώνων που συμμετέχει μια κορυφή
-	cl_ulong maxLocalSize;			// Το μέγεθος της τοπικής μνήμης που υπάρχει στη συσκευή
+	cl_int maxWorkgroupSize;		// The maximum number og workgroups supported by the device
+	cl_uint maxComputeUnits;		// The number of compute units of the device
+	cl_uint maxVertexToIndices;		// The maximum number of triangles on which a vertex resides
+	cl_ulong maxLocalSize;			// The size of the device's local memory
 
-	cl_uint *iArray;	// Πίνακας τριγώνων για απλοποίηση στον επεξεργαστή
-	cl_float *vArray;	// Πίνακας κορυφών για απλοποίηση στον επεξεργαστή
+	cl_uint *iArray;	// Triangle array for simplification on the CPU
+	cl_float *vArray;	// Vertex array for simplification on the CPU
 
-	std::vector<cl::Memory> &glBuffers; // Τα buffer objects που θα χρησιμοποιηθούν αν το μοντέλο βρίσκεται στην κάρτα γραφικών.
+	std::vector<cl::Memory> &glBuffers; // The buffer objects that will be used if the model resides on the GPU
 
-	cl::Memory *glIndices;			// Memory buffer (της OpenCL) για τα τρίγωνα του μοντέλου
-	cl::Memory *glVertices;			// Memory buffer για τις κορυφές του μοντέλου
+	cl::Memory *glIndices;			// Memory buffer (OpenCL) for the triangles of the model
+	cl::Memory *glVertices;			// Memory buffer for the vertices of the model
 
-	cl::Buffer *triangleQuadrics;	// Memory buffer για τα "ενδιάμεσα" quadrrics των τριγώνων
-	cl::Buffer *quadrics;			// Memory buffer για τα τελικά quadrics των κορυφών
-	cl::Buffer *errorArray;			// Memory buffer με το σφάλμα
-	cl::Buffer *usedArray;			// Memory buffer που χρησιμοποιείται κατά την εύρεση αυτόνομων κορυφών
+	cl::Buffer *triangleQuadrics;	// Memory buffer for the intermediate triangle quadrics
+	cl::Buffer *quadrics;			// Memory buffer for the final triangle quadrics
+	cl::Buffer *errorArray;			// Memory buffer for the error
+	cl::Buffer *usedArray;			// Memory buffer that is used to find the independent points
 
-	cl::Buffer *vertexToIndicesPointers; // Βοηθητικό memory buffer για να ξέρουμε σε ποιό σημείο του πίνακα των δεικτών πρέπει να ξεκινήσουμε για κάθε κορυφή
-	cl::Buffer *vertexToIndicesData; // Memory buffe με τους δείκτες από τις κορυφές πίσω στα τρίγωνα
+	cl::Buffer *vertexToIndicesPointers; // Helper memory buffer to know at which point of the pointer array we must begin for each vertex
+	 // TODO: Βοηθητικό memory buffer για να ξέρουμε σε ποιό σημείο του πίνακα των δεικτών πρέπει να ξεκινήσουμε για κάθε κορυφή
+	cl::Buffer *vertexToIndicesData; // Memory buffer with the pointers from the vertices to the triangles
 
-	double maxIndependentPointsToVertices; // Ο μέγιστος αριθμός των ανεξάρτητων κορυφών σε σχέση με το σύνολο των κορυφών
-	float independentPointsPerPassFactor; // Το ποσοστό των ανεξάρτητων κορυφών που θα χρησιμοποιηθούν σε κάθε πέρασμα
-    int independentPointsAlgorithm;	// Ο αλγόριθμος εύρεσης ανεξάρτητων κορυφών που θα χρησιμοποιηθεί
-	cl_int pointsFound;				// Το πλήθος των ανεξάρτητων κορυφών που βρέθηκαν
-	cl::Buffer *independentPoints;	// Memory buffer με τις ανεξάρτητες κορυφές
+	double maxIndependentPointsToVertices; // The maximum number of independent vertices in relation to the number of vertices of the model
+	float independentPointsPerPassFactor; // The percentage of the independent vertices that will bew used on each pass
+    int independentPointsAlgorithm;	// The algorithm that will be used to find the independent vertices
+	cl_int pointsFound;				// The number of the independent vertices found
+	cl::Buffer *independentPoints;	// Memory buffer holding the independent vertices
 	cl::Buffer *failedAttemptsBuffer;
 
-	//Αρχικοποίηση των Memory buffers
+	//initializes the Memory buffers
 	cl_int initialiseBuffers		(const Object &obj, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 
-	//Υπολοφισμός των δεικτών από τις κορυφές τρος τα τρίγωνα
+	//Calculates the pointers from the vertices to the triangles
 	cl_int computeVertexToIndices	(const Object &obj, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 
-	//Υπολογισμός των ανεξάρτητηων αημείων
+	//Calcuates the independent points
 	cl_int computeIndependentPoints	(const Object &obj, unsigned int remainingVertices, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 
-	// Ο Αρχικός σειριακός αλγόριθμος εύρεσης ανεξάρτητηων σημείων
+	// Initial serial algorithm that finds the independent points
 	cl_int computeIndependentPoints1(const Object &obj, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 
-	// Ο αλγόριθμος εύρεσης ανεξάρτητων σημείων βασισμένος στο σφάλμα
+	// Independent points algorithm based ont the error
 	cl_int computeIndependentPoints2(const Object &obj, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 
-	// Ο Τελικός αλγόριθμος εύρεσης ανεξάρτητων σημείων
+	// The final independent points algorithm
 	cl_int computeIndependentPoints3(const Object &obj, unsigned int remainingVertices, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 
-	// Υπολογισμός των quadrics των τριγώνων
+	// Computes the triangle quadrics
 	cl_int computeTriangleQuadrics	(const Object &obj, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 
-	// Υπολογισμός των quadrics των κορυφών
+	// Computes the vertices quadrics
 	cl_int computeFinalQuadrics		(const Object &obj, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 
-	// Υπολογισμός του σφάλματος για κάθε κορυφή
+	// Computes the error for each vertex
 	cl_int computeDecimationError	(const Object &obj, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 
-	// Ταξινόμηση των ανεξάρτητων κορυφών βάσει του σφάλματος που αντιστοιχεί στο καθένα
+	// Sorts the independent points based on the error
 	cl_int sortDecimationError		(const Object &obj, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 
-	// Απλοποίηση του μοντέλου στα ανεξάρτητα σημεία που βρέθηκαν
+	// Simplifies the model on the independent points
 	cl_int decimateOnPoints			(const Object &obj, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0, unsigned int * const verticesToTarget = 0);
 
-	//Μέθοδοι ελέγχου των δεδομένων (για όταν εκτελείται στον επεξεργαστή)
+	// Methods to validate the data (while executing on the CPU)
 	cl_int validateData				(const Object &obj, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 	cl_int validateIndependentPoints(const Object &obj, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 
-	// Συλλογή τελικού μοντέλου από την OpenCL
+	// Collects the resulting model from OpenCL
 	cl_int collectResults			(Object &ret, const Object &obj, const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 	cl_int cleanup					(					const std::vector<cl::Event> *const waitVector = 0, cl::Event *const returnedEvent = 0);
 
-	// Έυρεση του μέγιστου αριθμού τριγώνων που συμμετέχει μια κορυφή
+	// Finda the maximum number of triangles that a vertex participates
 	cl_int getMaxVertexToIndices(const Object &obj);
 
 public:
@@ -121,7 +122,7 @@ public:
 };
 
 /*
-	Συνάρτηση ελέγχου της τιμής επιστροφής από τις εντολές της OpenCL
+	Checks the returned value from the OpenCL commands
 */
 void clAssert(cl_int err, const char * msg = NULL);
 
