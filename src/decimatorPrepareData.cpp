@@ -7,13 +7,7 @@
 #include "decimator.hpp"
 
  /**********************************************************
- Αρχικοποιεί τα memoty buffers.
-
- ’ν τρέχει στην CPU δημιουργεί αντίγραφα του μοντέλου σε
- νέους πίνακες αλλίως χργσιμοποιεί τα buffer objects της 
- OpenGL. Δημιουργεί τα buffer objects που θα χρησιμοποιηθούν
- κατά την εκτέλεση του αλγορίθμου απλοποίησης και τα
- αρχικοποιεί καλώντας τον kernel intialiseArrays.
+ Initializes the memoty buffers.
  **********************************************************/
 cl_int Decimator::initialiseBuffers(const Object &obj, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent)
 {
@@ -123,8 +117,8 @@ cl_int Decimator::initialiseBuffers(const Object &obj, const std::vector<cl::Eve
 
 
  /**********************************************************
- Διατρέχει το μοντέλο και βρίσκει τον μέγιστο αριθμό τριγώνων
- στα οποία μπορεί να συμμετέχει μια κορυφή.
+ Goes throught the model and finds the maximum number of
+ triangles that a vertex can participate.
  **********************************************************/
 cl_int Decimator::getMaxVertexToIndices(const Object &obj)
 {
@@ -158,8 +152,8 @@ cl_int Decimator::getMaxVertexToIndices(const Object &obj)
 
 
  /**********************************************************
- Υπολογίζει τα δεδομένα της δομής που περιέχει δείκτες από
- τις κορυφές προς τα τρίγωνα.
+ Computes the data of the structure that holds the pointers from
+ the verties to the triangles.
  **********************************************************/
 cl_int Decimator::computeVertexToIndices(const Object &obj, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent)
 {
@@ -209,11 +203,10 @@ cl_int Decimator::computeVertexToIndices(const Object &obj, const std::vector<cl
 
 
  /**********************************************************
- Υπολογίζει τα θεμελιώδη quadrics των τριγώνων τα οποία
- ύστερα θα χρησιμοποιηθούν για τον υπολογισμό των quadrics
- των κορυφών.
-
- Τα αποτελέσματα μπαίνουν στο buffer object triangleQuadrics
+ Computes the basic quadrics of the triangles which will be used
+ later to compute the vertices quadrics.
+ 
+ The results are stored in the buffer object triangleQuadrics
  **********************************************************/
 cl_int Decimator::computeTriangleQuadrics(const Object &obj, const std::vector<cl::Event> *const waitVector,cl::Event *const returnedEvent)
 {
@@ -267,7 +260,7 @@ cl_int Decimator::computeTriangleQuadrics(const Object &obj, const std::vector<c
 }
 
  /**********************************************************
- Υπολογίζει τα quadrics κορυφών.
+ Computes the vertices quadrics.
  **********************************************************/
 cl_int Decimator::computeFinalQuadrics(const Object &obj, const std::vector<cl::Event> *const waitVector,cl::Event *const returnedEvent)
 {
@@ -313,7 +306,7 @@ cl_int Decimator::computeFinalQuadrics(const Object &obj, const std::vector<cl::
 
 
  /**********************************************************
- Υπολογίζει το σφάλμα βασισμένο στα quadrics.
+ Computes the error based on the quadrics.
  **********************************************************/
 cl_int Decimator::computeDecimationError(const Object &obj, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent)
 {
