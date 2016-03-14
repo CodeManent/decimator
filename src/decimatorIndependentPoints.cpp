@@ -7,12 +7,10 @@
 #include "decimator.hpp"
 
  /**********************************************************
- Μέθοδος επιλογέας του κατάλληλου αλγόριθμου για τον
- υπολογισμό των ανεξάρτητων κορυφών βάση της μεταβλητής
- independentPointsAlgorithm.
-
- Οι παράμετροι εκτέλεσης προωθούνται στην κατάλληλη μέθοδο
- που υλοποιεί τον αλγόριθμο που επιλέχθηκε.
+ Selects the appropriate method to compute the independent
+ points based on the independentPointsAlgorithm variable.
+ 
+ The execution parameters are forwarded to the selected method.
  **********************************************************/
 cl_int Decimator::computeIndependentPoints(const Object &obj, unsigned int remainingVertices, const std::vector<cl::Event> *const waitVector , cl::Event *const returnedEvent)
 {
@@ -52,8 +50,8 @@ cl_int Decimator::computeIndependentPoints(const Object &obj, unsigned int remai
 }
 
  /**********************************************************
- Υπολογίζει τις ανεξάρτητες κορυφές χρησιμοποιόντας την 
- σειριακή υλοποίηση του αλγορίθμου.
+ Computes the independent points using the serial
+ implementation of the algorithm
  **********************************************************/
 cl_int Decimator::computeIndependentPoints1(const Object &obj, const std::vector<cl::Event> *const waitVector , cl::Event *const returnedEvent)
 {
@@ -114,8 +112,8 @@ cl_int Decimator::computeIndependentPoints1(const Object &obj, const std::vector
 
 
  /**********************************************************
- Υπολογίζει τις ανεξάρτητες κορυφές χρησιμοποιόντας την 
- παράλληλη υλοποίση βασισμένη στο σφάλμα της κάθε κορυφής.
+ Computes the independent points using the parallel
+ implementation of the algorithm based on the vertex error.
  **********************************************************/
 cl_int Decimator::computeIndependentPoints2(const Object &obj, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent)
 {
@@ -186,9 +184,9 @@ cl_int Decimator::computeIndependentPoints2(const Object &obj, const std::vector
 
 
  /**********************************************************
- Υπολογίζει τις ανεξάρτητες κορυφές χρησιμοποιόντας την 
- παράλληλη υλοποίση βασισμένη μόνο στην συνδεσιμότητα του
- γράφου των που ορίζεται απότο μοντέλο.
+ Computes the independent points using the parallel
+ implementation of the algorithm based on the connectivity
+ of the graph specified by the model.
  **********************************************************/
 cl_int Decimator::computeIndependentPoints3(const Object &obj, unsigned int remainingVertices, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent)
 {
