@@ -6,7 +6,7 @@
 #include <vector>
 
 /*
-	Kλάση που αναπαριστά ένα μοντέλο.
+	Class representing a model
 */
 class Object
 {
@@ -19,14 +19,14 @@ public:
 	typedef unsigned int vert_size_t;
 	typedef unsigned int ind_size_t;
 */
-	std::vector<point3f> vertices;	// ΟΙ κορυφές του μοντέλου
-	std::vector<point3ui> indices;	// Τα τρίγωνα του μοντέλου
+	std::vector<point3f> vertices;	// The vertices of the model
+	std::vector<point3ui> indices;	// The triangles ofthe model
 
-	virtual void bring_to_center();	// Μεταφορά του μοντέλου στην αρχή των αξόνων
-	virtual point3f getCenter();	// Παίρνουμε το "κέντρο" του μοντέλου
+	virtual void bring_to_center();	// Moves the model to the origin
+	virtual point3f getCenter();	// Calculates the "center" of the model
 
-	virtual void addVertex(const point3f &vertex); // Προσθήκη κορυφής
-	virtual void addTriangle(const point3ui &triangle); // Προσθήκη τριγώνου
+	virtual void addVertex(const point3f &vertex); // Adds a vertex
+	virtual void addTriangle(const point3ui &triangle); // Adds a triangle
 
 	Object(void);
 	virtual ~Object(void);
