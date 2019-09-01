@@ -42,7 +42,7 @@ int main(int argc, char* argv[]){
 		// and save it if appropriate argument is specified
 		save();
 	}
-	catch(std::invalid_argument ia)
+	catch(std::invalid_argument &ia)
 	{
 		std::cerr << ia.what() << std::endl;
 		Configuration::showUsage();

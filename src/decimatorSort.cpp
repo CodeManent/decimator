@@ -11,7 +11,7 @@
  The sorting algorithm is bitonic sort.
  **********************************************************/
 
-cl_int Decimator::sortDecimationError(const Object &obj, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent)
+cl_int Decimator::sortDecimationError(const Object &, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent)
 {
 	cl_int err = CL_SUCCESS;
 	const cl_uint sortDirection = SORT_ASCENDING;
@@ -30,7 +30,7 @@ cl_int Decimator::sortDecimationError(const Object &obj, const std::vector<cl::E
 
 	cl_int localWorkgroupSize = getWorkgroupSize(localBitonicSort, "sortDecimationError");
 
-	if(po2 <= localWorkgroupSize*2 && po2 <= ( maxLocalSize / sizeof(cl_uint) ) )
+	if(po2 <= localWorkgroupSize*2 && (cl_ulong)po2 <= ( maxLocalSize / sizeof(cl_uint) ) )
 	{
 		//std::cout << "sortDecimationError: local sort" << std::endl;
 
@@ -39,7 +39,7 @@ cl_int Decimator::sortDecimationError(const Object &obj, const std::vector<cl::E
 		err |= localBitonicSort.setArg(ac++, *independentPoints);
 		err |= localBitonicSort.setArg(ac++, pointsFound);
 		err |= localBitonicSort.setArg(ac++, sortDirection);
-		err |= localBitonicSort.setArg(ac++, cl::__local(sizeof(cl_uint) * po2));
+		err |= localBitonicSort.setArg(ac++, cl::Local(sizeof(cl_uint) * po2));
 		clAssert(err, "Decimator::sortDecimationError: Adding kernel parameters");
 
 		err = queue->enqueueNDRangeKernel(
@@ -77,8 +77,8 @@ cl_int Decimator::sortDecimationError(const Object &obj, const std::vector<cl::E
 		err |= localPreSortARB.setArg(ac++, pointsFound);
 		err |= localPreSortARB.setArg(ac++, sortDirection);
 		err |= localPreSortARB.setArg(ac++, localPresortStages);
-		err |= localPreSortARB.setArg(ac++, cl::__local(sizeof(cl_double)*(1<<localPresortStages)));
-		err |= localPreSortARB.setArg(ac++, cl::__local(sizeof(cl_uint)*(1<<localPresortStages)));
+		err |= localPreSortARB.setArg(ac++, cl::Local(sizeof(cl_double)*(1<<localPresortStages)));
+		err |= localPreSortARB.setArg(ac++, cl::Local(sizeof(cl_uint)*(1<<localPresortStages)));
 		clAssert(err, "Decimator::sortDecimationError: Setting \"localPreSortARB\" parameters");
 
 		cl::Event localPreSortEvent;
@@ -136,8 +136,8 @@ cl_int Decimator::sortDecimationError(const Object &obj, const std::vector<cl::E
 		err |= bitonicMergeARB.setArg(ac++, *independentPoints);
 		err |= bitonicMergeARB.setArg(ac++, pointsFound);
 		err |= bitonicMergeARB.setArg(ac++, sortDirection);
-		err |= bitonicMergeARB.setArg(ac++, cl::__local(sizeof(cl_double)*(1<<mergePasses)));
-		err |= bitonicMergeARB.setArg(ac++, cl::__local(sizeof(cl_uint)*(1<<mergePasses)));
+		err |= bitonicMergeARB.setArg(ac++, cl::Local(sizeof(cl_double)*(1<<mergePasses)));
+		err |= bitonicMergeARB.setArg(ac++, cl::Local(sizeof(cl_uint)*(1<<mergePasses)));
 		clAssert(err, "Decimator::sortDecimationError: Setting merge kernel parameters");
 
 		for(cl_int stage = localPresortStages; stage < stages; ++stage)

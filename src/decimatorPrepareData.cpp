@@ -16,14 +16,10 @@ cl_int Decimator::initialiseBuffers(const Object &obj, const std::vector<cl::Eve
 	cl_uint vertices = (cl_int) obj.vertices.size();
 	//cl_uint workSizePadding;
 
-	std::vector<cl::Event> internalWaitVector;
-
 	cl::Event
 		acquireObjectsEvent,
 		initialiseArraysEvent
 		;
-
-	internalWaitVector.clear();
 
 	// fill the buffers with data from the object
 	iArray = new cl_uint[indices*3];
@@ -97,7 +93,7 @@ cl_int Decimator::initialiseBuffers(const Object &obj, const std::vector<cl::Eve
 		cl::NullRange,
 		cl::NDRange(workSize),
 		cl::NullRange,// cl::NDRange(workgroupSize),
-		&internalWaitVector,
+		waitVector,
 		&initialiseArraysEvent
 		);
 	clAssert(err, "Decimator::initialiseBuffers: Adding kernel to queue");

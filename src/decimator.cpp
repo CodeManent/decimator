@@ -48,7 +48,7 @@ Decimator::Decimator():
  of an error and through which the driver passes some 
  relevant information.
  **********************************************************/
-void CL_CALLBACK notifyFunction(const char *msg, const void* , ::size_t size, void* v)
+void CL_CALLBACK notifyFunction(const char *msg, const void* , ::size_t , void* )
 {
 	std::cerr << "Error notification: " << msg;
 }
@@ -452,7 +452,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
  buffer for the number of the failed collapses. If all the collapses
  fail an exception is raised.
  **********************************************************/
-cl_int Decimator::decimateOnPoints(const Object &obj, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent, unsigned int *const verticesToTarget)
+cl_int Decimator::decimateOnPoints(const Object &, const std::vector<cl::Event> *const waitVector, cl::Event *const returnedEvent, unsigned int *const verticesToTarget)
 {
 	//clAssert(queue->flush(), "flushing queue");
 	debugWait((*waitVector)[0]);

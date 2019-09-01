@@ -306,7 +306,7 @@ void /*_cdecl*/ independentPointsValidator(void *p)
 	cl_double const*const errorArray						= (cl_double *)	args[ac++];
 
 	const cl_uint vertices									= *(cl_uint*) args[ac++];
-	const cl_uint indices									= *(cl_uint*) args[ac++];
+	[[maybe_unused]] const cl_uint indices					= *(cl_uint*) args[ac++];
 	const cl_uint pointsFound								= *(cl_uint*) args[ac++];
 	const cl_uint validity_test								= *(cl_uint*) args[ac++];
 	assert(validity_test == 0xdeadface);
@@ -436,5 +436,4 @@ void /*_cdecl*/ independentPointsValidator(void *p)
 	}
 //*/
 	delete[] used;
-
 }
