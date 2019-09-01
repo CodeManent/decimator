@@ -9,12 +9,11 @@ HRD=$(INPATH)/*.h $(INPATH)/*.hpp
 KERNELS=kernels.cl
 
 #PLATFORM=-m32
-CFLAGS+=$(PLATFORM) -g -DLINUX #-I$(AMDAPPSDKROOT)/include/
-CXXFLAGS+=$(PLATFORM) -g -Wall -DLINUX #-Wextra -pedantic
+CFLAGS+=$(PLATFORM) -g -DLINUX -I/opt/amdgpu-pro/include
+CXXFLAGS+=$(PLATFORM) -g -Wall -Wextra -pedantic -DLINUX -D__CL_ENABLE_EXCEPTIONS -DCL_TARGET_OPENCL_VERSION=120
 
 
-
-LDFLAGS=#-L/usr/lib32/nvidia-304-updates # -L$(AMDAPPSDKROOT)/lib/x86
+LDFLAGS=-L/opt/amdgpu-pro/lib/x86_64-linux-gnu
 LIBS=-lOpenCL -lrt
 
 CPPSOURCES=camera.cpp configuration.cpp decimator.cpp decimatorDataValidators.cpp decimatorIndependentPoints.cpp decimatorPrepareData.cpp decimatorSort.cpp main.cpp object.cpp plyobject.cpp rply.c scene.cpp timer.cpp

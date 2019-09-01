@@ -11,7 +11,7 @@
 #include <sstream>
 #include <memory>
 
-#include "cl.hpp"
+#include <CL/cl.hpp>
 #include <CL/cl_gl.h>
 
 

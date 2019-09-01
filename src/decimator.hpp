@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "cl.hpp"
+#include <CL/cl.hpp>
 
 #include "object.hpp"
 /*
