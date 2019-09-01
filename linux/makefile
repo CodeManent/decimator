@@ -37,12 +37,12 @@ copy_kernels $(OUTPATH)/$(KERNELS):$(INPATH)/$(KERNELS)
 	
 clean:
 	$(RM) $(OBJECTS)
-#	$(RM) $(OUTFILE)
-#	$(RM) $(OUTPATH)/$(KERNELS)
+	$(RM) $(OUTFILE)
+	$(RM) $(OUTPATH)/$(KERNELS)
 
 #LD_LIBRARY_PATH=/usr/lib32/nvidia-304-updates:$$LD_LIBRARY_PATH
 test: $(OUTFILE) $(OUTPATH)/$(KERNELS) ../testModels/horse.ply
-	$(OUTFILE) ../testModels/horse.ply --target 1000 --gpu --kernels $(OUTPATH)/$(KERNELS) --cw --antialiasing
+	$(OUTFILE) ../testModels/horse.ply --target 1000 --gpu --kernels $(OUTPATH)/$(KERNELS) --cw --antialiasing -o horse_100.ply
 
 test_cpu: $(OUTFILE) $(OUTPATH)/$(KERNELS) ../testModels/horse.ply
 	$(OUTFILE) ../testModels/horse.ply --cpu
