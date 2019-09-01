@@ -191,9 +191,16 @@ void Decimator::initialise(){
 	}
 
 	// read the source code from the file
-	std::ifstream file(this->kernelFilename.c_str());
+	std::ifstream file(this->kernelFilename.c_str(), std::ios_base::in);
+	if(!file) {
+		throw std::runtime_error("Failed to open the kernels file: " + this->kernelFilename);
+	}
 
 	std::string kernelSource(std::istreambuf_iterator<char>(file), (std::istreambuf_iterator<char>()));
+
+	if(!kernelSource.length()) {
+		throw std::runtime_error("Kernles file is empty: " + this->kernelFilename);
+	}
 
 	// get the spurce code and compile it
 	cl::Program::Sources source(1, std::make_pair(kernelSource.c_str(), kernelSource.length()));
