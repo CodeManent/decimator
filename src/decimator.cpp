@@ -17,9 +17,6 @@
 
 #include "decimator.hpp"
 
-Decimator decimator;
-
-
 Decimator::Decimator():
 	runOnCPU(false),
 	kernelFilename("kernels.cl"),

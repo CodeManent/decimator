@@ -128,7 +128,5 @@ void clAssert(cl_int err, const char * msg = NULL);
 
 #define debugWait(x) /* clAssert(queue->finish(), "finish queue: " #x); clAssert(x.wait(), "waitting: " #x)*/
 
-extern Decimator decimator;
-
 #endif
 

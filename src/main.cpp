@@ -23,6 +23,8 @@ int main(int argc, char* argv[]){
 		configuration.getFromCommangLine(argc, argv);
 		configuration.validate();
 
+		Decimator decimator;
+
 		//std::clog << "Intiitialising decimator" << std::endl;
 		decimator.setRunOnCPU(configuration.runOnCPU);
 		decimator.setIndependentPointsPerPassFactor(configuration.pointsPerPassFactor);
@@ -33,10 +35,29 @@ int main(int argc, char* argv[]){
 
 		PLYObject *obj = new PLYObject (configuration.infile);
 
-		go(obj, configuration.decimationTarget);
+		if (configuration.decimationTarget > obj->vertices.size())
+		{
+			throw new std::invalid_argument("Target must be smaller then the object size.");
+		}
 
-		// and save it if appropriate argument is specified
-		save(obj, configuration.outfile, configuration.overwrite, configuration.ccwTriangles);
+		// Performs the decimation of the loaded object
+
+		unsigned int computedTarget =
+			configuration.decimationTarget < 1 ?
+			obj->vertices.size() * configuration.decimationTarget :
+			configuration.decimationTarget;
+
+		Object *newObject = new Object();
+		decimator.decimate(*obj, *newObject, computedTarget);
+
+		// Saves the model to the specified file
+		PLYObject::saveToFile(
+			configuration.outfile,
+			*obj,
+			configuration.overwrite,
+			configuration.ccwTriangles);
+
+		std::cout << "Object saved to \"" << configuration.outfile << "\"" << std::endl;
 	}
 	catch(std::invalid_argument &ia)
 	{
@@ -53,33 +74,3 @@ int main(int argc, char* argv[]){
 	//run
 	return EXIT_SUCCESS;
 }
-
-
-
-/******************************************************************************
- Performs the decimation of the loaded object
-******************************************************************************/
-Object* go(Object *obj, const float target)
-{
-	if (target > obj->vertices.size())
-	{
-		throw new std::invalid_argument("Target must be smaller then the object size.");
-	}
-
-	unsigned int computedTarget = (target < 1 ? obj->vertices.size() * target : target);
-
-	Object *newObject = new Object();
-	decimator.decimate(*obj, *newObject, computedTarget);
-
-	return newObject;
-}
-
-/******************************************************************************
- Saves the model to the specified file
-******************************************************************************/
-
-void save(Object *obj, const std::string file, const bool overwrite, const bool ccw){
-	PLYObject::saveToFile(file, *obj, overwrite, ccw);
-	std::cout << "Object saved to \""<< file <<"\"" << std::endl;
-}
-
