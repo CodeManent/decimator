@@ -1,8 +1,6 @@
 #ifndef CONFIGURATION_HPP_
 #define CONFIGURATION_HPP_
 
-#pragma once
-
 #include <string>
 
 /*
@@ -31,10 +29,9 @@ public:
 	void getFromCommangLine(int & argc, char *argv[]);	// Gets the parametera
 	static void showUsage();	// Prints on the console a description of how to use the program
 	void print() const;			// Prints on the console the values of the structure
+	void validate() const;
 	Configuration(void);
 	~Configuration(void);
 };
-
-extern Configuration configuration;
 
 #endif

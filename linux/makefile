@@ -10,7 +10,7 @@ KERNELS=kernels.cl
 
 #PLATFORM=-m32
 CFLAGS+=$(PLATFORM) -g -DLINUX -I/opt/amdgpu-pro/include
-CXXFLAGS+=$(PLATFORM) -g -Wall -Wextra -pedantic -DLINUX -D__CL_ENABLE_EXCEPTIONS -DCL_TARGET_OPENCL_VERSION=120
+CXXFLAGS+=$(PLATFORM) -std=c++17 -g -Wall -Wextra -pedantic -DLINUX -D__CL_ENABLE_EXCEPTIONS -DCL_TARGET_OPENCL_VERSION=120
 
 
 LDFLAGS=-L/opt/amdgpu-pro/lib/x86_64-linux-gnu

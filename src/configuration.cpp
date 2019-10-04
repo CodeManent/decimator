@@ -218,3 +218,19 @@ void Configuration::getFromCommangLine(int &argc, char * argv[])
 		}
 	}
 }
+
+#include <filesystem>
+void Configuration::validate() const
+{
+	if (decimationTarget < 0) {
+		throw std::invalid_argument("Invalid decimation target.");
+	}
+	if (configuration.outfile == "")
+	{
+		throw std::invalid_argument("No outfile is specified.");
+	}
+
+	if(!std::filesystem::exists(configuration.kernelsFile)) {
+		throw std::invalid_argument("Kernerl file does not exist.");
+	}
+}

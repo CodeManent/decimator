@@ -10,19 +10,18 @@
 #include "configuration.hpp"
 
 int main(int argc, char*argv[]);
-Object* go(Object *obj);
-void save(Object *obj);
+Object* go(Object *obj, const float target);
+void save(Object *obj, const std::string file, const bool overwrite, const bool ccw);
 
 /**********************************************************
  Entry point of the program.
  **********************************************************/
 int main(int argc, char* argv[]){
 	try{
-		configuration.getFromCommangLine(argc, argv);
+		Configuration configuration;
 
-		if(configuration.outfile == "") {
-			throw std::invalid_argument("No outfile is specified");
-		}
+		configuration.getFromCommangLine(argc, argv);
+		configuration.validate();
 
 		//std::clog << "Intiitialising decimator" << std::endl;
 		decimator.setRunOnCPU(configuration.runOnCPU);
@@ -34,10 +33,10 @@ int main(int argc, char* argv[]){
 
 		PLYObject *obj = new PLYObject (configuration.infile);
 
-		go(obj);
+		go(obj, configuration.decimationTarget);
 
 		// and save it if appropriate argument is specified
-		save(obj);
+		save(obj, configuration.outfile, configuration.overwrite, configuration.ccwTriangles);
 	}
 	catch(std::invalid_argument &ia)
 	{
@@ -60,33 +59,17 @@ int main(int argc, char* argv[]){
 /******************************************************************************
  Performs the decimation of the loaded object
 ******************************************************************************/
-Object* go(Object *obj)
+Object* go(Object *obj, const float target)
 {
-	Object *newObject = new Object();
-	try{
-		if(configuration.decimationTarget < 1.0f)
-		{
-			decimator.decimate(*obj, *newObject, (unsigned int)(obj->vertices.size()*configuration.decimationTarget));
-		}
-		else
-		{
-			if(configuration.decimationTarget < obj->vertices.size())
-			{
-				decimator.decimate(*obj, *newObject, (unsigned int)configuration.decimationTarget);
-			}
-			else
-			{
-				std::cout << "Target must be smaller then the object size" << std::endl;
-				return nullptr;
-			}
-		}
-	}
-	catch(std::exception &e)
+	if (target > obj->vertices.size())
 	{
-		delete newObject;
-		std::cout << e.what() << std::endl;
-		return nullptr;
+		throw new std::invalid_argument("Target must be smaller then the object size.");
 	}
+
+	unsigned int computedTarget = (target < 1 ? obj->vertices.size() * target : target);
+
+	Object *newObject = new Object();
+	decimator.decimate(*obj, *newObject, computedTarget);
 
 	return newObject;
 }
@@ -95,8 +78,8 @@ Object* go(Object *obj)
  Saves the model to the specified file
 ******************************************************************************/
 
-void save(Object *obj){
-	PLYObject::saveToFile(configuration.outfile.c_str(), *obj, configuration.overwrite, configuration.ccwTriangles);
-	std::cout << "Object saved to \""<< configuration.outfile <<"\"" << std::endl;
+void save(Object *obj, const std::string file, const bool overwrite, const bool ccw){
+	PLYObject::saveToFile(file, *obj, overwrite, ccw);
+	std::cout << "Object saved to \""<< file <<"\"" << std::endl;
 }
 
