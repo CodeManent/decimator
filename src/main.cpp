@@ -6,20 +6,23 @@
 
 #include "plyobject.hpp"
 
-#include "scene.hpp"
 #include "decimator.hpp"
 #include "configuration.hpp"
 
 int main(int argc, char*argv[]);
-void go();
-void save();
+Object* go(Object *obj);
+void save(Object *obj);
 
- /**********************************************************
+/**********************************************************
  Entry point of the program.
  **********************************************************/
 int main(int argc, char* argv[]){
 	try{
 		configuration.getFromCommangLine(argc, argv);
+
+		if(configuration.outfile == "") {
+			throw std::invalid_argument("No outfile is specified");
+		}
 
 		//std::clog << "Intiitialising decimator" << std::endl;
 		decimator.setRunOnCPU(configuration.runOnCPU);
@@ -29,18 +32,12 @@ int main(int argc, char* argv[]){
 
 		decimator.initialise();
 
-		// std::clog << "Trying to load \"" <<configuration.infile << "\"" << std::endl;
 		PLYObject *obj = new PLYObject (configuration.infile);
 
-        scene.camera.setTarget(obj->getCenter());
-		scene.registerObject(obj);
-
-		// decimate the object
-		std::cout << configuration.infile << ": ";
-		go();
+		go(obj);
 
 		// and save it if appropriate argument is specified
-		save();
+		save(obj);
 	}
 	catch(std::invalid_argument &ia)
 	{
@@ -63,23 +60,24 @@ int main(int argc, char* argv[]){
 /******************************************************************************
  Performs the decimation of the loaded object
 ******************************************************************************/
-void go(){
+Object* go(Object *obj)
+{
 	Object *newObject = new Object();
 	try{
 		if(configuration.decimationTarget < 1.0f)
 		{
-			decimator.decimate(*scene.objects[0], *newObject, (unsigned int)(scene.objects[0]->vertices.size()*configuration.decimationTarget));
+			decimator.decimate(*obj, *newObject, (unsigned int)(obj->vertices.size()*configuration.decimationTarget));
 		}
 		else
 		{
-			if(configuration.decimationTarget < scene.objects[0]->vertices.size())
+			if(configuration.decimationTarget < obj->vertices.size())
 			{
-				decimator.decimate(*scene.objects[0], *newObject, (unsigned int)configuration.decimationTarget);
+				decimator.decimate(*obj, *newObject, (unsigned int)configuration.decimationTarget);
 			}
 			else
 			{
 				std::cout << "Target must be smaller then the object size" << std::endl;
-				return;
+				return nullptr;
 			}
 		}
 	}
@@ -87,29 +85,18 @@ void go(){
 	{
 		delete newObject;
 		std::cout << e.what() << std::endl;
-		return;
+		return nullptr;
 	}
 
-	delete scene.objects[0];
-	scene.objects.pop_back();
-	scene.objects.push_back(newObject);
+	return newObject;
 }
 
 /******************************************************************************
  Saves the model to the specified file
 ******************************************************************************/
 
-void save(){
-	if(configuration.outfile.size() != 0)
-	{
-		try{
-			PLYObject::saveToFile(configuration.outfile.c_str(), *(scene.objects[0]),configuration.overwrite, configuration.ccwTriangles);
-			std::cout << "Object saved to \""<< configuration.outfile <<"\"" << std::endl;
-		}
-		catch (std::exception &e)
-		{
-			std::cout << e.what() << std::endl;
-		}
-	}
+void save(Object *obj){
+	PLYObject::saveToFile(configuration.outfile.c_str(), *obj, configuration.overwrite, configuration.ccwTriangles);
+	std::cout << "Object saved to \""<< configuration.outfile <<"\"" << std::endl;
 }
 

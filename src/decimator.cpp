@@ -16,7 +16,6 @@
 
 
 #include "decimator.hpp"
-#include "timer.hpp"
 
 Decimator decimator;
 
@@ -289,12 +288,7 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
         throw(std::invalid_argument("Decimator::decimat: Source object has no triangles"));
     }
 
-    //std::clog << "Decimation started" << std::endl;
-	//std::cout << "vertices(" << obj.vertices.size() << ") - target(" << targetVertices << ") = " << verticesToTarget << std::endl;
-
 	int iteration = 0;
-	Timer t;
-	t.start();
 
 	try{
 		//std::cout << "initailise\n";
@@ -335,14 +329,8 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
 		waitVector.clear();
 		waitVector.push_back(computeVTIEvent);
 
-		//std::cerr << "Decimator: entering loop" << std::endl;
 		do
 		{
-//*
-			//debug logging
-			//if(iteration % 10 == 0)
-                //std::clog << "----------\niteration : " << iteration << std::endl;
-//*/
 			iteration++;
 /*
 			//debug - data validation
@@ -437,12 +425,10 @@ void Decimator::decimate(Object &obj, Object &newObject, unsigned int targetVert
         std::cerr << "Cleanup error: " << e.what() << std::endl;
 		throw;
 	}
-	t.stop();
 
 	std::cout << "target: " << targetVertices << '\t'
 	          << "result: " << newObject.vertices.size() << '\t'
 	          << "iterations: " << iteration << '\t'
-	          << "duration: " << t.getDuration() << "ms"
 			  << std::endl;
 	queue->finish();
 }

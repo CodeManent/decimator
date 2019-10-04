@@ -16,8 +16,17 @@ CXXFLAGS+=$(PLATFORM) -g -Wall -Wextra -pedantic -DLINUX -D__CL_ENABLE_EXCEPTION
 LDFLAGS=-L/opt/amdgpu-pro/lib/x86_64-linux-gnu
 LIBS=-lOpenCL -lrt
 
-CPPSOURCES=camera.cpp configuration.cpp decimator.cpp decimatorDataValidators.cpp decimatorIndependentPoints.cpp decimatorPrepareData.cpp decimatorSort.cpp main.cpp object.cpp plyobject.cpp rply.c scene.cpp timer.cpp
-#HEDAERS=camera.hpp configuration.hpp decimator.hpp glut_callbacks.hpp plyobject.hpp point3.hpp rply.h cl.hpp object.hpp 
+CPPSOURCES= configuration.cpp \
+			decimator.cpp \
+			decimatorDataValidators.cpp \
+			decimatorIndependentPoints.cpp \
+			decimatorPrepareData.cpp \
+			decimatorSort.cpp \
+			main.cpp \
+			object.cpp \
+			plyobject.cpp \
+			rply.c
+
 OBJECTS=$(addprefix $(OUTPATH)/,$(subst .c,.o,$(subst .cpp,.o,$(CPPSOURCES))))
 
 .PHONY: all copy_kernels clean test test_cpu run
@@ -40,14 +49,12 @@ clean:
 	$(RM) $(OUTFILE)
 	$(RM) $(OUTPATH)/$(KERNELS)
 
-#LD_LIBRARY_PATH=/usr/lib32/nvidia-304-updates:$$LD_LIBRARY_PATH
 test: $(OUTFILE) $(OUTPATH)/$(KERNELS) ../testModels/horse.ply
 	$(OUTFILE) ../testModels/horse.ply --target 1000 --gpu --kernels $(OUTPATH)/$(KERNELS) --cw --antialiasing -o horse_100.ply
 
 test_cpu: $(OUTFILE) $(OUTPATH)/$(KERNELS) ../testModels/horse.ply
 	$(OUTFILE) ../testModels/horse.ply --cpu
 
-#LD_LIBRARY_PATH=/usr/lib32/nvidia-304-updates:$$LD_LIBRARY_PATH
 run: $(OUTFILE) $(OUTPATH)/$(KERNELS)
 	$(OUTFILE) `zenity --file-selection --file-filter '*.ply'` --gpu --kernels $(OUTPATH)/$(KERNELS) --cw --antialiasing
 
